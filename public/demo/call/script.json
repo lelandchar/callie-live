@@ -1,0 +1,172 @@
+{
+  "title": "Cartwell × Arize: changing the prompt safely",
+  "cast": {
+    "customer": {
+      "name": "Grace Liu",
+      "org": "Cartwell",
+      "role": "Product Manager, AI Assistant",
+      "voice": "Aoede",
+      "style": "a warm, articulate product manager in her late twenties on a video call, curious and a little anxious about the holiday rush"
+    },
+    "csm": {
+      "name": "Julian Hayes",
+      "org": "Arize",
+      "role": "Solutions Engineer",
+      "voice": "Iapetus",
+      "style": "a friendly, confident American solutions engineer in his early thirties on a video call, clear and relaxed",
+      "avatarId": "dbb01388-7c57-47bf-ab59-c492caeb9d90"
+    }
+  },
+  "lines": [
+    {
+      "id": "c01",
+      "who": "csm",
+      "chapter": "Kickoff",
+      "text": "Hi Grace, good to see you. I saw your note on the booking: you want to rewrite the shopping assistant's prompt before the holidays, without breaking checkout. Let's make sure you leave today with a plan.",
+      "pauseAfter": 600
+    },
+    {
+      "id": "c02",
+      "who": "customer",
+      "chapter": "Testing a prompt",
+      "text": "Exactly. The assistant is fine most days, but it rambles, and sometimes it recommends products that are out of stock. So, first question: how do we test a new prompt without shipping it?",
+      "pauseAfter": 1800
+    },
+    {
+      "id": "c03",
+      "who": "csm",
+      "text": "Good question. You don't ship anything to test it. You open the Prompt Playground in Arize, paste in the new prompt, and run it against a dataset of real conversations. You see the old and the new answers side by side.",
+      "pauseAfter": 700
+    },
+    {
+      "id": "c04",
+      "who": "customer",
+      "chapter": "No staging needed",
+      "text": "Oh, interesting. I thought the only safe way to test a prompt was to deploy every version to staging first.",
+      "pauseAfter": 1800
+    },
+    {
+      "id": "c05",
+      "who": "csm",
+      "text": "No staging needed. The Playground calls the model directly with your prompt and your dataset, so production never sees it. Your engineers only get involved once you've picked a winner.",
+      "pauseAfter": 700
+    },
+    {
+      "id": "c06",
+      "who": "customer",
+      "chapter": "Where test data comes from",
+      "text": "That's a relief. Where would the test conversations come from, though?",
+      "pauseAfter": 1800
+    },
+    {
+      "id": "c07",
+      "who": "csm",
+      "text": "From your own traces. You filter for the conversations that went wrong, like the out of stock recommendations, add them to a dataset, and mix in some typical good ones. That way you're testing against the problems you actually have.",
+      "pauseAfter": 700
+    },
+    {
+      "id": "c08",
+      "who": "customer",
+      "chapter": "A cheaper model",
+      "text": "Makes sense. And could we try a cheaper model while we're at it?",
+      "pauseAfter": 1800
+    },
+    {
+      "id": "c09",
+      "who": "csm",
+      "text": "Yes. Compare Models runs the same prompt across different models side by side, so you see quality and cost together before you switch anything.",
+      "pauseAfter": 900
+    },
+    {
+      "id": "c10",
+      "who": "customer",
+      "chapter": "Nervous about Black Friday",
+      "text": "Okay. Honestly, I'm a little nervous. If checkout breaks the week of Black Friday, that's on me.",
+      "pauseAfter": 2400
+    },
+    {
+      "id": "c11",
+      "who": "csm",
+      "text": "That's completely fair, and it's exactly why you'd run it as an experiment first and only ship the winner. Then, after launch, you put monitors on what matters: latency, cost per conversation, and an eval for wrong product recommendations.",
+      "pauseAfter": 700
+    },
+    {
+      "id": "c12",
+      "who": "customer",
+      "chapter": "Who gets alerted",
+      "text": "And who gets alerted if something goes wrong?",
+      "pauseAfter": 1800
+    },
+    {
+      "id": "c13",
+      "who": "csm",
+      "text": "Whoever you choose. Alerts can go to email, Slack, PagerDuty or a webhook, and you can set a fixed threshold or let Arize pick one automatically from your history.",
+      "pauseAfter": 700
+    },
+    {
+      "id": "c14",
+      "who": "customer",
+      "chapter": "Callie catches a wrong fact",
+      "text": "Good. One more thing: last holiday season we had a spike of bad answers. Can we compare against that?",
+      "pauseAfter": 600
+    },
+    {
+      "id": "c15",
+      "who": "csm",
+      "text": "Sure. Your Pro plan keeps a full year of traces, so last November is still in there.",
+      "pauseAfter": 6500
+    },
+    {
+      "id": "c16",
+      "who": "csm",
+      "text": "Actually, let me correct myself. Pro keeps thirty days of traces, not a year, so last November is gone. Longer retention is an Enterprise option. For this season, let's save the bad holiday conversations into a dataset as we find them.",
+      "pauseAfter": 700
+    },
+    {
+      "id": "c17",
+      "who": "customer",
+      "chapter": "One page for the VP",
+      "text": "Thanks for catching that. It actually changes our plan. My VP also wants one page to look at. What would you put on it?",
+      "pauseAfter": 1800
+    },
+    {
+      "id": "c18",
+      "who": "csm",
+      "text": "A dashboard. Start from a template, then add widgets like p95 latency by model, token cost, and your eval scores over time. It updates on its own, so your VP never has to ask.",
+      "pauseAfter": 700
+    },
+    {
+      "id": "c19",
+      "who": "customer",
+      "chapter": "Sending the plan",
+      "text": "Perfect. Can you send me all of this, so I can share it with the team?",
+      "pauseAfter": 700
+    },
+    {
+      "id": "c20",
+      "who": "csm",
+      "text": "Sending it now, while we're still talking.",
+      "action": "email_latest",
+      "actionTo": "Grace Liu",
+      "pauseAfter": 1500
+    },
+    {
+      "id": "c21",
+      "who": "customer",
+      "text": "Oh, it's here already, and it's step by step. That's great. Thanks, Julian.",
+      "pauseAfter": 500
+    },
+    {
+      "id": "c22",
+      "who": "csm",
+      "text": "Anytime. Run the first experiment this week, and let's look at the results together next Tuesday.",
+      "pauseAfter": 500
+    },
+    {
+      "id": "c23",
+      "who": "customer",
+      "text": "Sounds good. Talk then!",
+      "pauseAfter": 2500
+    }
+  ]
+}

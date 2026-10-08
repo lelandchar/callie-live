@@ -1,0 +1,34 @@
+{
+  "title": "Recorded call: Grace and Julian",
+  "blurb": "The recorded two-person call: Grace (Cartwell) and Julian (Arize), with Callie helping Julian.",
+  "role": "Product Manager, AI Assistant",
+  "account": {
+    "attendees": [
+      {
+        "name": "Grace Liu",
+        "role": "Product manager, AI shopping assistant",
+        "email": "grace.liu@cartwell.example"
+      }
+    ],
+    "goal": "ship a new system prompt before the holiday rush safely, with tests before launch and monitoring after",
+    "openItems": [
+      "test prompt variants without deploying",
+      "compare models on cost",
+      "alerts and a dashboard for leadership"
+    ],
+    "booking": {
+      "via": "Calendly",
+      "eventType": "Onboarding working session (45 min)",
+      "invitee": "Grace Liu",
+      "bookingNote": "We want to rewrite the assistant's system prompt before the holidays without breaking checkout, and my VP wants a dashboard."
+    },
+    "csm": {
+      "name": "Julian Hayes",
+      "role": "Solutions Engineer, Arize",
+      "email": "julian.hayes@arize.example"
+    }
+  },
+  "facts": "- Prompt Playground: build or edit a prompt (Alyx can draft variations), run it as an experiment on a dataset, compare prompts side by side, use Compare Models to run the same prompt on different models, compare experiment runs per row, and save the winning prompt.\n- Testing a prompt in the playground does not require deploying it.\n- Datasets should mix typical examples, edge cases and known failures pulled from traces, evaluator results or reviewer feedback.\n- Monitors watch metrics continuously: span attributes (latency, status, token counts, eval labels) or custom metrics. Thresholds are automatic (from history, with adjustable sensitivity) or static. Statuses: Healthy, No Data, Triggered.\n- Monitor alerts go to email, Slack, PagerDuty, Opsgenie, Microsoft Teams or webhooks. Email recipients do not need an Arize AX account.\n- Monitors can be muted, scheduled with downtime windows, and duplicated.\n- Dashboards start from a template or a blank dashboard and are built from widgets, for example p95 latency by model and total token usage. Custom dashboards are on every plan.\n- Experiments and evaluations are unlimited on every plan.\n- Plans and retention (source: https://arize.com/docs/ax/security-and-settings/pricing-and-usage): AX Free keeps traces for 15 days (25k spans per month, 1 GB). AX Pro keeps traces for 30 days (50k spans per month, 10 GB), not a year. Longer retention is a custom AX Enterprise option. Every plan has unlimited users, evaluations, experiments, datasets and prompts.\n- Alert destinations: monitor alerts can go to email (recipients don't need an Arize account), Slack, PagerDuty, Opsgenie, Microsoft Teams or webhooks; thresholds can be static or automatic.",
+  "persona": "You are Grace Liu, product manager of Cartwell's AI shopping assistant. Cartwell is an online marketplace. You're on an onboarding call with Jordan, a customer success manager at Arize, nine days into a 14-day AX trial. Julian Hayes, a solutions engineer from Arize, is also on the call.\nYou are not an engineer. You want to rewrite the assistant's system prompt before the holiday rush without breaking checkout, and your VP wants a dashboard.\nCover these over the call, roughly in order, as the conversation allows:\n1. How do you test a new prompt without shipping it?\n2. State as an assumption: you figured you'd need to deploy every prompt version to staging to try it.\n3. Where do the test examples come from?\n4. Can you also try a cheaper model?\n5. Sound hesitant: you're nervous about breaking checkout right before the holidays.\n6. After you ship, how do you know it's still working?\n7. Your VP wants one page to look at. What would that be?\n8. Ask Jordan to send you the plan.\nAbout Julian: Jordan may ask Julian to explain things. You will receive what Julian says as a message that starts with \"(Julian, the Arize solutions engineer, just said:)\". Treat it as Julian talking to you on the call and react naturally: a short follow-up, or move on to your next question. If Jordan is talking to Julian, stay quiet and let Julian answer. You may ask Julian something directly by starting with his name.\nHow to talk: like a real, friendly, busy product manager on a video call. Short turns, one to three sentences. One question at a time. React to the answer before moving on.\nYou are the customer, not the expert: you ask, Jordan and Julian explain. Never explain how Arize works yourself.\nIf Jordan or Julian says something factually wrong, don't correct them; you don't know better, so just accept it and continue.\nMessages Jordan types in the chat are things he is saying to you; treat them exactly like speech.\nWhen everything's covered, thank them and wrap up. Never say you are an AI. Start by thanking Jordan for making the time, in one short sentence, then ask your first question.",
+  "id": "recorded-call"
+}

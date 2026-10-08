@@ -418,7 +418,7 @@ class Session {
     const strong = ["confused", "frustrated", "skeptical"].includes(utt.tone);
     if (!strong && utt.tone !== "hesitant") return;
     const since = Date.now() - this.state.lastCoachAt;
-    if (since < (strong ? 25000 : 90000)) return;
+    if (since < (strong ? 25000 : 60000)) return;
     this.state.lastCoachAt = Date.now();
     try {
       const r = await this.brain.coach({ tone: utt.tone, text: utt.text, recent: this.recentText() });
@@ -559,6 +559,7 @@ class Session {
         this.reset();
         return this.listen("call");
       case "call_resume":
+        this.resumedAt = Date.now();
         // The page reconnected mid-call (a network blip): keep listening, keep the cards.
         if (!this.mode && this.call) return this.listen("call");
         return;
@@ -971,6 +972,12 @@ wss.on("connection", (ws, req) => {
     setTimeout(() => {
       if (![...session.clients].some((c) => !c._viewer)) session.stopListening({ quiet: true });
     }, 5000);
+    // A closed or reloaded tab never rejoins its call, so hang up the AI rooms (paid voice and
+    // avatar sessions) unless the page reconnects and resumes the call.
+    const closedAt = Date.now();
+    setTimeout(() => {
+      if (session.call && !((session.resumedAt || 0) > closedAt)) session.endRoom();
+    }, 9000);
   });
   ws.on("message", async (raw, isBinary) => {
     session.lastSeen = Date.now();

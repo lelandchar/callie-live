@@ -94,7 +94,7 @@
         <div class="h-sec-head">
           <p class="cds-eyebrow">The scenario</p>
           <h2>A real onboarding call, played live.</h2>
-          <p>Grace Liu, product manager of Cartwell’s AI shopping assistant, booked a working session with Arize through Calendly. She wants to rewrite the assistant’s prompt before the holiday rush without breaking checkout. You play Arize’s customer success manager, and Julian, an Arize solutions engineer, joins you. Grace and Julian are both AI. Callie helps only you.</p>
+          <p>Grace Liu, product manager of Cartwell’s AI shopping assistant, booked a working session with Arize through Calendly. She wants to rewrite the assistant’s prompt before the holiday rush without breaking checkout. In the recording, Julian Hayes, an Arize solutions engineer, runs the call with Callie’s help. In the live call, you play Arize’s customer success manager and can bring Julian in. Grace and Julian are both AI, and Callie helps only the Arize side.</p>
         </div>
         <div class="h-grid three">
           <article class="h-card brand-card">
@@ -139,7 +139,7 @@
           <div class="pain-row">
             <div class="pain-l"><b>Unfamiliar questions end in a follow-up.</b><p>Even well-prepared CSMs hit questions they can’t answer. The standard advice is to admit it and get back to the customer later.</p>
               <blockquote>“I’m going to chat with my colleagues to get you the right information.”<cite><a href="https://builtin.com/articles/saying-i-dont-know-customer-success" target="_blank" rel="noopener">A CSM’s script for unknown questions · Built In, 2022 ↗</a></cite></blockquote></div>
-            <div class="pain-r"><b>Answers while the customer is still on the line</b><p>The line to say, with its source, in about three seconds.</p>
+            <div class="pain-r"><b>Answers while the customer is still on the line</b><p>The line to say, with its source, within seconds.</p>
               <div class="pop-card pop-answer" aria-hidden="true"><div class="pk"><span class="pi">✦</span>Grace asked <span>· 2.1 s</span></div><div class="pm">Test the new prompt on a dataset in the Prompt Playground. Nothing ships.</div><div class="pb"><i class="go">Send</i><i>Show on board</i></div></div></div>
           </div>
           <div class="pain-row">
@@ -174,7 +174,7 @@
           <div class="cap-copy">
             <span class="cap-pri">Priority 1</span>
             <h3>Answers, three ways</h3>
-            <p>The customer asks; Callie answers from the company’s docs and the account notes in about three seconds. One answer can take three forms:</p>
+            <p>The customer asks; Callie answers from the company’s docs and the account notes in about five seconds. One answer can take three forms:</p>
             <ul class="cap-modes">
               <li><b>Say it.</b> The line to say out loud, with the source behind it.</li>
               <li><b>Show it.</b> A flow, a code snippet or a checklist drawn on a whiteboard the CSM can present.</li>
@@ -219,7 +219,7 @@
           <div>
             <h3>Out of scope for the MVP</h3>
             <ul class="x-list">
-              <li>Post-meeting wrap-ups and recaps (Notetaker and Callie already cover them)</li>
+              <li>Post-meeting wrap-ups and recaps (Notetaker and Callie’s follow-ups already cover them)</li>
               <li>CRM writes</li>
               <li>Non-English calls</li>
               <li>Internal meetings</li>
@@ -519,13 +519,13 @@
         <div class="h-sec-head">
           <p class="cds-eyebrow">What happens to each thing someone says</p>
           <h2>Hear, understand, look it up, respond.</h2>
-          <p>About three seconds from the end of a question to a card on your screen.</p>
+          <p>About five seconds from the end of a question to a card on your screen.</p>
         </div>
         <ol class="flow5">
           <li><div class="p-node"><span class="p-ic">1</span><b>Hear</b><em>Voice activity detection</em></div><p>Splits the call into short pieces of speech, each tagged with who spoke: you, the customer or your teammate.</p></li>
-          <li><div class="p-node"><span class="p-ic">2</span><b>Understand</b><em>Gemini 3.5 Flash-Lite</em></div><p>A small, fast model writes down what was said and decides what kind of moment it is: a question, a claim worth checking, a request to Callie, or just conversation. It also notes the customer’s tone. Takes about a second.</p></li>
+          <li><div class="p-node"><span class="p-ic">2</span><b>Understand</b><em>Gemini 3.8 Flash</em></div><p>A fast model writes down what was said and decides what kind of moment it is: a question, a claim worth checking, a request to Callie, or just conversation. It also notes the customer’s tone. Takes about two seconds, and it hears product names right.</p></li>
           <li><div class="p-node"><span class="p-ic">3</span><b>Look it up</b><em>Keyword + meaning search</em></div><p>Finds the few passages that matter in the company’s docs (892 Arize passages here) and a short list of facts that must never be wrong.</p></li>
-          <li><div class="p-node"><span class="p-ic">4</span><b>Think</b><em>Gemini 3.8 Flash, raced with 3.6 Flash</em></div><p>A bigger model writes the answer, the correction or the coaching tip, always with its source. Two models run at once and the first good answer wins, because speed varies by the hour.</p></li>
+          <li><div class="p-node"><span class="p-ic">4</span><b>Think</b><em>Gemini 3.8 Flash, two requests race</em></div><p>The same model writes the answer, the correction or the coaching tip, always with its source. Two requests run at once and the first good answer wins, because speed varies from call to call.</p></li>
           <li class="out"><div class="p-node"><span class="p-ic">5</span><b>Respond</b><em>The panel</em></div><p>One card in focus, a drawing on the whiteboard, or an email draft that waits for your click. Optionally, a short whisper in your ear (Gemini 3.8 Live).</p></li>
         </ol>
       </section>
@@ -544,7 +544,7 @@
               <li><b>LiveKit Agents (Python)</b><span>Runs the AI people. One worker plays every role, with the persona handed over when the call starts.</span></li>
               <li><b>Gemini 3.8 Live</b><span>Grace’s and Julian’s voices and brains: they hear you and answer out loud, natively, with no separate speech-to-text.</span></li>
               <li><b>Spatius avatars</b><span>Faces that move with the voice, drawn in your browser.</span></li>
-              <li><b>ElevenLabs v4</b><span>Jordan’s pre-voiced lines in the recorded call.</span></li>
+              <li><b>Gemini 3.8 Flash TTS</b><span>Grace’s and Julian’s voices in the recorded call. Each avatar speaks its own audio in Spatius direct mode, so the lips follow the exact sound.</span></li>
               <li><b>Browser audio taps</b><span>Stand in for the desktop app’s capture of your computer’s sound.</span></li>
             </ul>
           </div>
@@ -552,9 +552,9 @@
             <span class="lane-tag real">Callie Live Assistant · the product</span>
             <ul class="tech">
               <li><b>Capture</b><span>Two channels, you and everyone else, so speakers are known. A desktop app in the product; browser taps in this demo.</span></li>
-              <li><b>Gemini 3.5 Flash-Lite</b><span>Hears each piece of speech and labels it in about a second.</span></li>
-              <li><b>Search over the company’s docs</b><span>Keyword search plus Gemini embeddings, refreshed on a schedule, with verified key facts on top.</span></li>
-              <li><b>Gemini 3.8 Flash (raced with 3.6 Flash)</b><span>Answers, fact-checks and coaching, with sources.</span></li>
+              <li><b>Gemini 3.8 Flash</b><span>Hears each piece of speech and labels it in about two seconds.</span></li>
+              <li><b>Search over the company’s docs</b><span>Keyword search plus Gemini Embedding 2, refreshed on a schedule, with verified key facts on top.</span></li>
+              <li><b>Gemini 3.8 Flash</b><span>Answers, fact-checks and coaching, with sources. Two requests race and the first good answer wins.</span></li>
               <li><b>Gemini 3.8 Live</b><span>The optional whisper in your ear, first sound in about 0.6 seconds.</span></li>
               <li><b>Whiteboard and drafts</b><span>The model sends meaning; the browser draws it. Emails wait for your click.</span></li>
               <li><b>Calendly booking context</b><span>Who’s coming, why, and what they asked for when they booked.</span></li>

@@ -202,7 +202,7 @@ html.in-call, html.in-call body { height: 100%; overflow: hidden; }
 .switch input:focus-visible + span { outline: 2px solid var(--c-blue); outline-offset: 2px; }
 
 /* ---------- Callie, on the right ---------- */
-.callie { display: flex; flex-direction: column; gap: 12px; min-height: 0; }
+aside.callie { display: flex; flex-direction: column; gap: 12px; min-height: 0; }
 .c-card { background: var(--c-surface); border-radius: 18px; box-shadow: 0 0 0 1px rgba(7, 26, 49, 0.06), var(--sh-card); padding: 16px; min-height: 0; }
 .c-head { display: flex; align-items: center; gap: 10px; }
 .c-head h3 { margin: 0; font: 600 15px/1.2 var(--f-display); letter-spacing: -0.01em; }
@@ -341,7 +341,7 @@ html.in-call, html.in-call body { height: 100%; overflow: hidden; }
 .tl.check .dot { background: #e5484d; }
 .tl.clarify .dot { background: #e09b1a; }
 .tl.coach .dot { background: #8b74e8; }
-.tl.callie .dot { background: #7da52a; }
+.tl.ask .dot { background: #7da52a; }
 .tl.action .dot { background: var(--c-ink); }
 .tl time { color: var(--c-ink-3); font-size: 12px; font-variant-numeric: tabular-nums; }
 .tl .detail { grid-column: 2 / -1; margin-top: 4px; }
@@ -426,7 +426,7 @@ html.in-call, html.in-call body { height: 100%; overflow: hidden; }
 .ctl-home:active { transform: translateY(-50%) scale(0.96); }
 .ctl-label { left: 72px; }
 
-.callie {
+aside.callie {
   background: var(--c-surface); border-radius: 22px; padding: 16px;
   box-shadow: 0 0 0 1px rgba(7, 26, 49, 0.06), var(--sh-card); gap: 14px; overflow: hidden;
 }
@@ -438,8 +438,8 @@ html.in-call, html.in-call body { height: 100%; overflow: hidden; }
 
 .feed { flex: 1 1 auto; min-height: 0; overflow: auto; display: flex; flex-direction: column; gap: 8px; scrollbar-width: thin; }
 .now-stack { flex: 1 0 auto; display: flex; flex-direction: column; }
-.callie:has(#boardCard:not([hidden])) .feed { flex: 0 1 auto; max-height: 64%; }
-.callie:has(#boardCard:not([hidden])) .now-stack { flex: none; }
+aside.callie:has(#boardCard:not([hidden])) .feed { flex: 0 1 auto; max-height: 64%; }
+aside.callie:has(#boardCard:not([hidden])) .now-stack { flex: none; }
 .now-empty { flex: 1; min-height: 160px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; padding: 24px; background: none; color: var(--c-ink-3); font-size: 14px; }
 .now-empty .wave { display: flex; align-items: center; gap: 5px; height: 46px; }
 .now-empty .wave i { width: 5px; border-radius: 3px; background: #c9d6f5; height: 30%; }
@@ -483,7 +483,7 @@ html.in-call, html.in-call body { height: 100%; overflow: hidden; }
 .tl.check { background: #fdf1f0; } .tl.check .ic { background: #fbd5d3; color: #c22d33; }
 .tl.clarify { background: #fff8e8; } .tl.clarify .ic { background: #ffe6b3; color: #9a5b00; }
 .tl.coach { background: #f5f2ff; } .tl.coach .ic { background: #e3dcff; color: #5b45c9; }
-.tl.callie { background: #f6fbe8; } .tl.callie .ic { background: #e6f3c4; color: var(--c-callie-ink); }
+.tl.ask { background: #f6fbe8; } .tl.ask .ic { background: #e6f3c4; color: var(--c-callie-ink); }
 .tl.action { background: #f4f5f7; cursor: default; } .tl.action .ic { background: #e3e7ec; color: var(--c-ink-2); }
 .recent .tl:nth-child(1) { opacity: 0.8; }
 .recent .tl:nth-child(2) { opacity: 0.55; }
@@ -517,9 +517,37 @@ html.in-call, html.in-call body { height: 100%; overflow: hidden; }
 }
 .now-empty[hidden] { display: none; }
 /* the moment in focus always shows in full; the board takes whatever room is left */
-.callie:has(#boardCard:not([hidden])) .feed { flex: 0 0 auto; max-height: 70%; }
+aside.callie:has(#boardCard:not([hidden])) .feed { flex: 0 0 auto; max-height: 70%; }
 .c-board { flex: 1 1 0; min-height: 140px; }
 /* the board leads with what Callie drew last; older drawings fade and only one stays visible */
 .board-items .bitem.older { opacity: 0.4; transition: opacity 0.3s; }
 .board-items .bitem.older:hover { opacity: 1; }
 .board-items > .bitem:nth-child(n + 3) { display: none; }
+/* captions about twice the old size, scaled to the video width */
+.captions { width: min(88%, 980px); bottom: 84px; }
+.captions p { font-size: clamp(17px, 2.9cqw, 30px); line-height: 1.5; padding: 8px 16px; border-radius: 14px; }
+/* only real faces in the corner: no self-view tile unless your camera is on */
+#selfView:not(.has-video) { display: none; }
+
+/* the join card always fits: compact on short screens, and it scrolls if it still can't */
+.overlay { overflow-y: auto; place-items: safe center; }
+@media (max-height: 840px) {
+  .join-card { padding: 22px 24px 18px; }
+  .join-card h2 { font-size: 24px; margin: 8px 0 6px; }
+  .join-card p { font-size: 15px; margin-bottom: 14px; }
+  .join-card .who { padding: 10px 12px; margin-bottom: 12px; }
+  .join-card .who .pic { width: 40px; height: 40px; font-size: 15px; }
+  .join-card .who b { font-size: 15px; }
+  .join-card .who span { font-size: 13.5px; }
+  .join-card .cds-btn { font-size: 15.5px; padding: 13px 18px; }
+}
+/* hidden menu items stay hidden */
+.menu button.item[hidden] { display: none; }
+/* phone and tablet: one column that never grows past the screen, a taller stage, a menu that fits */
+@media (max-width: 980px) {
+  .call-grid { grid-template-columns: minmax(0, 1fr); }
+  .stage { aspect-ratio: auto; height: min(82vh, 680px); min-height: 520px; }
+  .menu { position: fixed; left: 12px; right: 12px; bottom: 12px; width: auto; max-height: 76vh; }
+  aside.callie, .feed, .tl, .board-items, .bitem { min-width: 0; max-width: 100%; }
+  .bitem.code pre { max-width: 100%; }
+}

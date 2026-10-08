@@ -560,3 +560,20 @@ html.anim .roadmap.in::before, html.anim .roadmap:has(li.in)::before { transform
 @media (max-width: 1100px) { .sb-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 620px) { .sb-list { grid-template-columns: 1fr; } }
 .stack-view .h-sec.alt { border-radius: 28px; }
+
+/* ten steps: two rows of five on wide screens */
+.sb-list { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+@media (max-width: 1199px) { .sb-list { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 620px) { .sb-list { grid-template-columns: 1fr; } }
+
+/* nav: no wrapping tabs on mid widths; on phones the tabs get their own scrollable row */
+.h-tab { white-space: nowrap; }
+@media (max-width: 1180px) { .h-logo .cds-pill { display: none; } .h-tabs { margin-left: 4px; } .h-backup { display: none; } }
+@media (max-width: 760px) {
+  .h-nav { flex-wrap: wrap; row-gap: 8px; }
+  .h-logo b { font-size: 16px; }
+  .h-tabs { display: flex; order: 3; width: 100%; margin: 0; overflow-x: auto; scrollbar-width: none; }
+  .h-actions .cds-btn { padding: 10px 14px; font-size: 14px; }
+}
+/* final call to action: readable white text on a deeper blue */
+.h-final-card { background: linear-gradient(160deg, #1f5fe0 0%, #0b3fae 55%, #0a2c78 100%); }

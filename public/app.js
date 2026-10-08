@@ -80,7 +80,7 @@ function onMessage(m) {
       m.cards.forEach((c) => upsertCard(c));
       [...m.board].reverse().forEach((b) => addBoardItem(b, false));
       ui.transcript = m.transcript || [];
-      if (ui.inCall && !m.listening) send({ type: "call_resume" });
+      if (ui.inCall) send({ type: "call_resume" }); // also tells the server this call is still alive
       break;
     case "status": break;
     case "level": break;
@@ -299,8 +299,10 @@ function connecting(text) {
   if (text) $("#connectingText").textContent = text;
 }
 
-async function joinCall({ text = ui.textMode } = {}) {
+async function joinCall({ text = ui.textMode, retry = false } = {}) {
   if (ui.inCall) return;
+  if (!retry) ui.joinAttempt = 0;
+  const attempt = ++ui.joinAttempt;
   ctx();
   showJoinError("");
   const btn = $(text ? "#joinTextBtn" : "#joinBtn");
@@ -325,6 +327,21 @@ async function joinCall({ text = ui.textMode } = {}) {
     setLive(true);
     renderControls();
     let joined = false;
+    let heard = false; // Grace has said something (her greeting comes within a few seconds)
+    // Grace's voice service can fail as a call starts (it did once in 17 calls on Oct 7). If she's
+    // silent or drops out, call her again once; after that, point to the recording.
+    const graceGone = async (why) => {
+      if (!ui.inCall || ui.redialing) return;
+      if (attempt < 2) {
+        ui.redialing = true;
+        addHint(why === "left" ? "Grace dropped off. Calling her again…" : "Grace didn't pick up. Calling her again…");
+        await leaveCall({ quiet: true });
+        await sleep(800);
+        ui.redialing = false;
+        return joinCall({ text, retry: true });
+      }
+      addHint("Grace can't connect right now. End the call and play the recording on the overview instead.", "warning");
+    };
     const mod = await loadCallModule();
     call = await mod[v ? "joinCall" : "joinCallVoiceOnly"](...(v ? [v] : []), conn, {
       micTrack: media.pub,
@@ -338,6 +355,7 @@ async function joinCall({ text = ui.textMode } = {}) {
         }));
       },
       onTranscript: (t) => {
+        if (!t.local) heard = true;
         chatLine(t.local ? "you" : "grace", t.text, t.id, !t.final);
         showCaption(t.local ? "You" : "Grace", t.text, !t.final);
         if (t.final && !t.local) {
@@ -347,17 +365,16 @@ async function joinCall({ text = ui.textMode } = {}) {
       },
       onState: (s, detail) => {
         if (s === "joined" && !joined) connecting("Grace is joining…");
-        if (s === "left" && ui.inCall) addHint("Grace left the call.");
+        if (s === "left" && ui.inCall) graceGone("left");
         if (s === "reconnecting") connecting("Reconnecting…");
         if (s === "connected" && joined) connecting("");
         if (s === "failed" || s === "error") addHint(`Call problem: ${detail || s}`, "warning");
       },
     });
     if (conn.teammate) joinMate(mod, conn.teammate).catch((e) => addHint(`${conn.teammate.name.split(" ")[0]} couldn't join: ${e.message}`, "warning"));
-    setTimeout(() => { if (ui.inCall && !joined) connecting("Grace is taking a moment to join…"); }, 12000);
-    setTimeout(() => {
-      if (ui.inCall && !joined) addHint(ui.caps.hosted ? "Grace hasn't joined yet. End the call and try again, or take the audio-only call from the ⋯ menu." : "Grace hasn't joined yet. Is her agent running? Start it with agent/run-local.sh, or take the audio-only call from the ⋯ menu.", "warning");
-    }, 30000);
+    const thisCall = call;
+    setTimeout(() => { if (ui.inCall && call === thisCall && !heard) connecting("Grace is taking a moment to join…"); }, 9000);
+    setTimeout(() => { if (ui.inCall && call === thisCall && !heard) graceGone("silent"); }, 16000);
   } catch (e) {
     ui.inCall = false;
     setLive(false);
@@ -376,8 +393,8 @@ function mountMate(avatarId) {
   mateMounting ??= (async () => {
     try {
       const mod = await loadCallModule();
-      if (!mod.supportsLiveAvatar()) throw new Error("no live avatar here");
-      const v = await mod.loadAvatar($("#mateStage"), { appId: config.spatiusAppId, avatarId });
+      if (!RECORDED && !mod.supportsLiveAvatar()) throw new Error("no live avatar here");
+      const v = await mod.loadAvatar($("#mateStage"), { appId: config.spatiusAppId, avatarId, mode: RECORDED ? "direct" : "rtc" });
       v.avatarTransform = MATE_FRAME;
       return v;
     } catch (e) {
@@ -437,13 +454,15 @@ function remember(who, text) {
   if (ui.convo.length > 14) ui.convo.shift();
 }
 // "Julian, can you…", "@Julian …" or a line that starts with his name.
-const addressesMate = (text) => !!mateCall && (/^\s*@?julian\b/i.test(text) || /\bjulian,/i.test(text));
-let lastMateAsk = 0;
+const addressesMate = (text) => !!mateCall && (/^\s*@?julian\b/i.test(text) || /\bjulian,\s*(can|could|would|will|what|where|when|how|why|do|does|is|are|please|walk|tell|show|explain|take)\b/i.test(text));
+let lastMateAsk = {};
 async function askMate(request) {
   if (!mateCall) return;
-  // One ask at a time: the same line can arrive typed, transcribed and from the Ask button.
-  if (Date.now() - lastMateAsk < 8000) return;
-  lastMateAsk = Date.now();
+  // The same line can arrive twice (typed or exact, then transcribed): skip a near-copy within 8 s.
+  const words = new Set(request.toLowerCase().match(/[a-z0-9']+/g) || []);
+  const same = [...(lastMateAsk.words || [])].filter((w) => words.has(w)).length / Math.max(1, Math.min(words.size, lastMateAsk.words?.size || 0));
+  if (Date.now() - (lastMateAsk.at || 0) < 8000 && same > 0.6) return;
+  lastMateAsk = { at: Date.now(), words };
   const context = (ui.convo || []).slice(-6).map((c) => `${NAMES[c.who]}: ${c.text}`).join("\n");
   try {
     await mateCall.sendText(`(Recent conversation on the call)\n${context}\n\n(Now, to you:) ${request}`);
@@ -534,7 +553,7 @@ $("#textModeToggle").onchange = async (e) => {
   setTextMode(on);
 };
 
-async function leaveCall() {
+async function leaveCall({ quiet = false } = {}) {
   if (ui.roleplay) return endAudioOnly();
   if (ui.capture) return stopCapture();
   if (rec.running) return stopRecorded();
@@ -553,6 +572,9 @@ async function leaveCall() {
   setLive(false);
   clearCaptions();
   renderControls();
+  $("#ctlLabel").textContent = "";
+  if (quiet) return;
+  $("#chatDock").hidden = true;
   showSummary(duration);
 }
 function showSummary(duration) {
@@ -561,8 +583,9 @@ function showSummary(duration) {
   const sent = ui.actionLog.length;
   $("#joinEyebrow").textContent = `Call ended · ${duration}`;
   $("#joinTitle").textContent = "Nice work. Here’s what Callie did.";
-  $("#joinText").textContent = "Everything stays in the panel: scroll Earlier to revisit any moment.";
-  $("#joinActions").innerHTML = `<div class="stats"><div><b>${n("answer") + n("callie")}</b><span>answers</span></div><div><b>${n("check")}</b><span>corrections</span></div><div><b>${n("coach") + sent}</b><span>nudges and sends</span></div></div>
+  $("#joinText").textContent = "Everything stays in the panel: open any earlier moment to see it again.";
+  const plural = (k, one, many) => `<div><b>${k}</b><span>${k === 1 ? one : many}</span></div>`;
+  $("#joinActions").innerHTML = `<div class="stats">${plural(n("answer") + n("callie"), "answer", "answers")}${plural(n("check"), "correction", "corrections")}${plural(n("coach") + sent, "nudge or send", "nudges and sends")}</div>
     <button class="cds-btn lg" id="joinBtn">Start a new call</button>
     <div class="join-row"><a class="cds-btn outline" href="/">Back to the overview</a></div>`;
   $("#joinBtn").onclick = () => { resetJoinCard(); joinCall(); };
@@ -644,7 +667,7 @@ function stopCapture() {
 // ------------------------------------------------------------------ captions
 let captionTimer;
 function showCaption(who, text, live) {
-  if (!ui.captions || !text?.trim()) return;
+  if (!ui.captions || ui.textMode || !text?.trim()) return;
   const el = $("#captions");
   const t = text.replace(/\s+/g, " ").trim();
   const words = t.split(" ");
@@ -702,7 +725,10 @@ document.addEventListener("click", (e) => {
 });
 $("#whisperMode").onchange = (e) => send({ type: "settings", settings: { whisper: e.target.value } });
 $("#coachToggle").onchange = (e) => send({ type: "settings", settings: { coach: e.target.checked } });
-$("#profileSel").onchange = (e) => { if (e.target.value === "panel") send({ type: "profile", name: "panel" }); else applyScenario(e.target.value); };
+$("#profileSel").onchange = (e) => {
+  if (ui.inCall) { e.target.value = ui.scenario?.id || e.target.value; return addHint("Leave the call first, then switch scenarios."); }
+  applyScenario(e.target.value);
+};
 
 // ------------------------------------------------------------------ scenarios
 const SCENARIOS = config.scenarios || [];
@@ -725,7 +751,7 @@ function applyScenario(id) {
   wsReady.then(() => send({ type: "profile", name: s.id }));
 }
 $("#scenarioSel").innerHTML = SCENARIOS.map((s) => `<option value="${s.id}">${esc(s.title)}</option>`).join("");
-$("#profileSel").innerHTML = SCENARIOS.map((s) => `<option value="${s.id}">${esc(s.title)}</option>`).join("") + `<option value="panel">Interview panel (pre-read)</option>`;
+$("#profileSel").innerHTML = SCENARIOS.map((s) => `<option value="${s.id}">${esc(s.title)}</option>`).join("");
 $("#scenarioSel").onchange = (e) => applyScenario(e.target.value);
 if (RECORDED || !SCENARIOS.length) {
   $("#scenarioPick").hidden = true;
@@ -912,7 +938,7 @@ function renderNow() {
 function shownNow() {
   return new Set([ui.primaryId].filter(Boolean));
 }
-const TL_ICON = { answer: "book", callie: "spark", check: "alert", clarify: "alert", coach: "chat", missed: "clock", action: "mail" };
+const TL_ICON = { answer: "book", ask: "spark", callie: "spark", check: "alert", clarify: "alert", coach: "chat", missed: "clock", action: "mail" };
 function renderTimeline() {
   const list = $("#timeline");
   const open = new Set($$(".tl.open", list).map((x) => x.dataset.cid));
@@ -921,7 +947,7 @@ function renderTimeline() {
   for (const id of [...ui.order].reverse()) {
     const c = ui.cards.get(id);
     if (!c || shown.has(id) || c.status === "thinking") continue;
-    const kind = c.type === "check" && c.clarify ? "clarify" : c.type;
+    const kind = c.type === "check" && c.clarify ? "clarify" : c.type === "callie" ? "ask" : c.type;
     rows.push({ at: c.at, html: `<div class="tl ${kind}${open.has(id) ? " open" : ""}" data-cid="${id}"><span class="ic">${icon(TL_ICON[kind] || "book")}</span><span class="t">${esc(summaryOf(c))}</span><svg class="chev"><use href="#i-down" /></svg>${open.has(id) ? `<div class="detail">${momentHtml(c)}</div>` : ""}</div>` });
   }
   for (const a of ui.actionLog) rows.push({ at: a.at, html: `<div class="tl action"><span class="ic">${icon("mail")}</span><span class="t">${esc(a.text)}</span></div>` });
@@ -950,7 +976,10 @@ function upsertCard(card) {
   if (isNew) ui.order.push(card.id);
   if (card.type !== "missed") {
     const current = ui.cards.get(ui.primaryId);
-    const takeOver = !current || card.id === ui.primaryId || current.status === "thinking" || (PRIORITY[card.type] || 1) >= (PRIORITY[current.type] || 1) || Date.now() - ui.primaryAt > 4000;
+    // Coaching never bumps an answer that's still loading; it waits its turn behind the moment in focus.
+    const takeOver = card.type === "coach"
+      ? !current || (current.status !== "thinking" && Date.now() - ui.primaryAt > 6000)
+      : !current || card.id === ui.primaryId || current.status === "thinking" || (PRIORITY[card.type] || 1) >= (PRIORITY[current.type] || 1) || Date.now() - ui.primaryAt > 4000;
     if (takeOver && (isNew || card.id === ui.primaryId || current?.status === "thinking")) {
       if (card.id !== ui.primaryId) { ui.primaryId = card.id; ui.primaryAt = Date.now(); }
     }
@@ -1085,7 +1114,7 @@ function addBoardItem(b, animate) {
   el.addEventListener("click", (e) => onItemClick(e, el));
   $$(".bitem", $("#boardItems")).forEach((x) => x.classList.add("older"));
   $("#boardItems").prepend(el);
-  if (b.origin !== "you") ui.lastBoardAt = Date.now();
+  if (b.origin !== "you") { ui.lastBoardAt = Date.now(); $("#boardCard").classList.remove("dim"); }
   boardChanged();
   if (animate && b.origin !== "you") {
     $("#board").scrollTo({ top: 0, behavior: "smooth" });
@@ -1206,7 +1235,7 @@ document.addEventListener("keydown", (e) => {
   }
   if (/INPUT|TEXTAREA|SELECT/.test(document.activeElement?.tagName) || $("#app").hidden) return;
   const map = { v: "select", p: "pen", s: "sticky", e: "eraser" };
-  if (map[e.key] && !e.metaKey && !e.ctrlKey) setTool(map[e.key]);
+  if (map[e.key] && !e.metaKey && !e.ctrlKey && $("#board").matches(":hover")) setTool(map[e.key]);
   if ((e.key === "Delete" || e.key === "Backspace") && ui.selected) {
     send({ type: "board_user", op: "erase", id: ui.selected.dataset.bid });
     ui.selected.remove();
@@ -1238,32 +1267,44 @@ ptt.addEventListener("pointerdown", (e) => { if (ptt.disabled) return; e.prevent
 ["pointerup", "pointerleave", "pointercancel"].forEach((ev) => ptt.addEventListener(ev, () => ptt.classList.contains("down") && pttOn(false)));
 
 // ------------------------------------------------------------------ recorded call (backup)
-// The recorded Cartwell × Arize call plays on the stage: Grace's avatar speaks her lines,
-// Jordan and Marcus play as audio, and Callie hears every line exactly as in the live call.
+// The recorded call: Grace (Cartwell) and Julian (Arize) each speak their lines through their own
+// avatar in Spatius direct mode, so the lips follow the exact audio. Callie hears every line the
+// way it hears a live call and helps Julian.
 const rec = { script: null, manifest: null, running: false, paused: false, stop: false, audio: null, cancel: null };
 async function loadScript() {
-  rec.script ??= await (await fetch("/demo/script.json", { cache: "no-store" })).json();
-  rec.manifest ??= await (await fetch("/demo/manifest.json", { cache: "no-store" })).json();
+  rec.script ??= await (await fetch("/demo/call/script.json", { cache: "no-store" })).json();
+  rec.manifest ??= await (await fetch("/demo/call/manifest.json", { cache: "no-store" })).json();
   return rec.script;
 }
 async function setupRecorded() {
   const script = await loadScript();
-  $("#joinEyebrow").textContent = "Recorded call · about 6 minutes";
-  $("#joinTitle").textContent = "Cartwell × Arize onboarding, with Callie";
-  $("#joinText").textContent = "A prerecorded onboarding call. Grace’s avatar speaks her lines, and Callie listens and helps exactly as it does in the live call.";
-  const chapters = script.scripts.after.lines.map((l, i) => (l.chapter ? `<option value="${i}">${esc(l.chapter)}</option>` : "")).join("");
+  $("#joinEyebrow").textContent = "Recorded call · about 4 minutes";
+  $("#joinTitle").textContent = script.title || "Cartwell × Arize onboarding, with Callie";
+  $("#joinText").textContent = "Grace (Cartwell) and Julian (Arize) are voiced with Gemini 3.8 Flash TTS and speak through their avatars. Callie listens and helps Julian live, exactly as in a real call.";
+  const chapters = linesOf("after").map((l, i) => (l.chapter ? `<option value="${i}">${esc(l.chapter)}</option>` : "")).join("");
   $("#joinActions").innerHTML = `<button class="cds-btn lg" id="playAfterBtn">${icon("play").replace("<svg", '<svg width="16" height="16"')} Play with Callie</button>
-    <div class="join-row"><button class="cds-btn outline" id="playBeforeBtn">Play the version without Callie</button></div>
+    ${script.scripts?.before ? `<div class="join-row"><button class="cds-btn outline" id="playBeforeBtn">Play the version without Callie</button></div>` : ""}
     <label class="chapter-pick">Start at <select id="chapterSel"><option value="0">The beginning</option>${chapters}</select></label>`;
   $("#joinAlt").textContent = "Take the live call instead";
   $("#joinAlt").href = "/?call";
   $("#joinAlt").removeAttribute("data-recorded");
   $("#playAfterBtn").onclick = () => playRecorded("after", Number($("#chapterSel").value || 0));
-  $("#playBeforeBtn").onclick = () => playRecorded("before");
+  if ($("#playBeforeBtn")) $("#playBeforeBtn").onclick = () => playRecorded("before");
   $("#audioOnlyBtn").textContent = "Take the live call instead";
   $("#recordedBtn").hidden = true;
   $("#selfView").classList.remove("has-video");
+  // Two people on this call: Grace on the stage and Julian in the corner.
+  if (script.cast.csm?.avatarId) {
+    $("#mateTile").hidden = false;
+    $("#mateLabel").textContent = `${script.cast.csm.name} · ${script.cast.csm.org}`;
+    $("#askMateBtn").hidden = true;
+    $("#whoRole").textContent = `${script.cast.customer.role}, ${script.cast.customer.org} · booked via Calendly`;
+    $("#nameRole").textContent = script.cast.customer.role;
+    mountMate(script.cast.csm.avatarId); // Julian's avatar is ready (idle) before the call starts
+  }
 }
+const linesOf = (name) => rec.script.scripts?.[name]?.lines || rec.script.lines;
+
 async function prepareDirectVoice() {
   if (voiceDirect) return voiceDirect;
   try {
@@ -1274,6 +1315,7 @@ async function prepareDirectVoice() {
     if (!r.ok) throw new Error(error);
     voiceDirect = (await loadCallModule()).directVoice(v, { sessionToken });
     await voiceDirect.prepare();
+    await prepareMateVoice();
     return voiceDirect;
   } catch (e) {
     console.warn("recorded avatar voice:", e);
@@ -1281,9 +1323,28 @@ async function prepareDirectVoice() {
     return null;
   }
 }
+let mateVoice = null;
+async function prepareMateVoice() {
+  const id = rec.script?.cast?.csm?.avatarId;
+  if (!id || mateVoice) return mateVoice;
+  try {
+    const v = await mountMate(id);
+    if (!v) return null;
+    const r = await fetch("/api/spatius-token", { method: "POST" });
+    const { sessionToken, error } = await r.json();
+    if (!r.ok) throw new Error(error);
+    mateVoice = (await loadCallModule()).directVoice(v, { sessionToken });
+    await mateVoice.prepare();
+  } catch (e) {
+    console.warn("recorded teammate voice:", e);
+    mateVoice = null;
+  }
+  return mateVoice;
+}
 function wordsFor(line) { return line.text.replace(/\[[^\]]+\]\s*/g, "").trim(); }
 function speakerTile(who, on) {
-  $("#selfView").classList.toggle("speaking", on && who === "csm");
+  $("#selfView").classList.toggle("speaking", on && who === "csm" && !rec.script?.cast?.csm?.avatarId);
+  $("#mateTile").classList.toggle("speaking", on && who === "csm" && !!rec.script?.cast?.csm?.avatarId);
   $("#guestTile").classList.toggle("speaking", on && who === "security");
   if (who === "security" && on) $("#guestTile").hidden = false;
   $("#customerStill").classList.toggle("speaking", on && who === "customer");
@@ -1295,7 +1356,7 @@ function captionLine(line, startedAt, seconds) {
   const tick = () => {
     if (!rec.paused) {
       const n = Math.max(1, Math.ceil(((performance.now() - startedAt) / 1000 / seconds) * words.length * 1.08));
-      showCaption(line.who === "csm" ? "Jordan" : name, words.slice(0, n).join(" "), true);
+      showCaption(name, words.slice(0, n).join(" "), true);
     }
     raf = requestAnimationFrame(tick);
   };
@@ -1309,19 +1370,20 @@ async function playLine(line) {
   const started = performance.now();
   const stopCaption = captionLine(line, started, seconds);
   try {
-    if (line.who === "customer" && voiceDirect) {
-      // Grace: the avatar speaks the recorded audio with matching lips.
+    const avatarVoice = line.who === "customer" ? voiceDirect : line.who === "csm" ? mateVoice : null;
+    if (avatarVoice) {
+      // The speaker's avatar plays the recorded audio itself, so the lips follow it exactly.
       const wav = await (await fetch(url)).arrayBuffer();
       await new Promise((resolve) => {
         let done = false;
         const finish = () => { if (!done) { done = true; resolve(); } };
         let logged = false;
-        voiceDirect.onState((s) => {
+        avatarVoice.onState((s) => {
           if (s === "playing" && !logged) { logged = true; recLog({ type: "line", id: line.id }); }
           if (s === "idle" && performance.now() - started > 600) finish();
         });
-        voiceDirect.speak(wav.slice(44), true);
-        rec.cancel = () => { voiceDirect.interrupt(); finish(); };
+        avatarVoice.speak(wav.slice(44), true);
+        rec.cancel = () => { avatarVoice.interrupt(); finish(); };
         const guard = () => { if (done) return; if (performance.now() - started > (seconds + 4) * 1000 && !rec.paused) finish(); else setTimeout(guard, 250); };
         setTimeout(guard, 250);
       });
@@ -1361,17 +1423,23 @@ async function playRecorded(name, fromIndex = 0) {
   renderControls();
   resetPanel();
   setLive(true, withCallie ? "Listening to the recorded call" : "Off for this run: watch what gets missed");
-  if (withCallie) { send({ type: "reset" }); send({ type: "demo_start", mode: params.has("capture") ? "capture" : "inject" }); await sleep(300); }
+  if (withCallie) {
+    send({ type: "profile", name: rec.script.profile || "recorded-call" });
+    send({ type: "settings", settings: { whisper: "off" } });
+    send({ type: "reset" });
+    send({ type: "demo_start", mode: params.has("capture") ? "capture" : "inject" });
+    await sleep(300);
+  }
   startTimer();
   const cast = rec.script.cast;
-  const lines = rec.script.scripts[name].lines;
+  const lines = linesOf(name);
   const misses = [];
   for (let i = fromIndex; i < lines.length; i++) {
     const line = lines[i];
     if (rec.stop) break;
     await waitWhilePaused();
     if (withCallie) await waitForWhisperDone();
-    if (line.chapter) { $("#ctlLabel").textContent = `Chapter ${line.chapter}`; recLog({ type: "chapter", title: line.chapter }); }
+    if (line.chapter) recLog({ type: "chapter", title: line.chapter });
     const meta = { id: line.id, who: line.who === "csm" ? "csm" : "customer", private: !!line.private, speaker: cast[line.who].name };
     if (withCallie) send({ type: "demo_line", phase: "start", ...meta });
     await playLine(line);
@@ -1380,7 +1448,11 @@ async function playRecorded(name, fromIndex = 0) {
       misses.push(line.miss);
       upsertCard({ id: `miss-${line.id}`, type: "missed", status: "ready", text: line.miss, at: Date.now() });
     }
-    if (withCallie && line.action) send({ type: "demo_action", action: line.action, to: line.actionTo });
+    if (withCallie && line.action) {
+      send({ type: "demo_action", action: line.action, to: line.actionTo });
+      // Wait for the draft to show before anyone reacts to it (up to 20 s).
+      if (line.action === "email_latest") for (let t = 0; t < 20000 && !rec.stop && !/Subject/.test($("#drawer").hidden ? "" : $("#drawer").textContent); t += 250) await sleep(250);
+    }
     let wait = line.pauseAfter ?? 500;
     while (wait > 0 && !rec.stop) { await waitWhilePaused(); await sleep(Math.min(wait, 150)); wait -= 150; }
   }
@@ -1456,11 +1528,14 @@ const fmt = (sec) => `${Math.floor(sec / 60)}:${String(Math.floor(sec % 60)).pad
   video.poster = `/media/${name}-poster.jpg?v=${v}`;
   video.src = `/media/${name}.mp4?v=${v}`;
   const when = new Date(meta.recordedAt).toLocaleString([], { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit", timeZoneName: "short" });
-  $("#recMeta").textContent = `${name === "callie-live-call" ? "A real call, recorded" : "Recorded"} ${when} · ${fmt(meta.seconds)} · unedited screen and sound`;
+  $("#recMeta").textContent = meta.kind === "scripted"
+    ? `Recorded ${when} · ${fmt(meta.seconds)} · the real app, unedited · scripted voices by Gemini 3.8 Flash TTS`
+    : `${name === "callie-live-call" ? "A real call, recorded" : "Recorded"} ${when} · ${fmt(meta.seconds)} · unedited screen and sound`;
   // The breakdown: each step says what happened on the call and what Callie did. Click to jump there.
   const KIND = { answer: "Answer", show: "Whiteboard", send: "Send", check: "Correction", clarify: "Clarify", coach: "Coaching" };
   $("#chapterList").innerHTML = meta.chapters.map((c, i) => `<li><button type="button" class="step" data-i="${i}"><span class="st-time">${fmt(c.t)}</span><b>${esc(c.title)}</b>${c.what ? `<span class="st-what">${esc(c.what)}</span>` : ""}${c.callie ? `<span class="st-callie ${esc(c.kind || "answer")}"><i>${esc(KIND[c.kind] || "Callie")}</i>${esc(c.callie)}</span>` : ""}</button></li>`).join("");
   $$("#chapterList .step").forEach((b) => (b.onclick = () => { video.currentTime = meta.chapters[Number(b.dataset.i)].t; video.play().catch(() => {}); video.scrollIntoView({ behavior: "smooth", block: "center" }); }));
+  video.addEventListener("loadedmetadata", () => { if (video.duration) $("#recMeta").textContent = $("#recMeta").textContent.replace(fmt(meta.seconds), fmt(video.duration)); });
   video.addEventListener("timeupdate", () => {
     const i = meta.chapters.reduce((k, c, j) => (video.currentTime >= c.t ? j : k), -1);
     $$("#chapterList .step").forEach((b, j) => b.classList.toggle("on", j === i && !video.paused));
@@ -1469,11 +1544,11 @@ const fmt = (sec) => `${Math.floor(sec / 60)}:${String(Math.floor(sec % 60)).pad
 const playRecording = (e) => {
   e?.preventDefault();
   $$(".h-tab").find((t) => t.dataset.tab === "overview")?.click();
-  $("#watch").scrollIntoView({ behavior: "smooth", block: "center" });
+  video.scrollIntoView({ behavior: "smooth", block: "center" });
   video.play().catch(() => {});
 };
 $$("[data-play]").forEach((b) => (b.onclick = playRecording));
-$$("[data-watch]").forEach((a) => (a.onclick = (e) => { e.preventDefault(); $$(".h-tab").find((t) => t.dataset.tab === "overview")?.click(); $("#watch").scrollIntoView({ behavior: "smooth", block: "center" }); }));
+$$("[data-watch]").forEach((a) => (a.onclick = (e) => { e.preventDefault(); $$(".h-tab").find((t) => t.dataset.tab === "overview")?.click(); video.scrollIntoView({ behavior: "smooth", block: "center" }); }));
 
 // Scroll motion, the way calendly.com moves: sections rise in, siblings in a stagger. Content is
 // only hidden once this script runs, and reduced-motion users get it all at rest.
@@ -1531,7 +1606,7 @@ $$(".h-tab").forEach((t) => (t.onclick = async () => {
 }));
 // "Start experience" opens the call and joins it in the same click, so the browser treats the
 // mic prompt and Grace's voice as something the user started.
-$$("[data-start]").forEach((b) => (b.onclick = () => { ctx(); showCall(); joinCall(); }));
+$$("[data-start]").forEach((b) => (b.onclick = () => { ctx(); showCall(); }));
 $("#joinBtn").onclick = () => joinCall({ text: false });
 $("#joinTextBtn").onclick = () => joinCall({ text: true });
 

@@ -151,7 +151,7 @@ async function build() {
         const c = queue.shift();
         try {
           const r = await ai.models.embedContent({
-            model: "gemini-embedding-001",
+            model: process.env.CALLIE_EMBED_MODEL || "gemini-embedding-2",
             contents: `${c.title} — ${c.heading}\n\n${c.text}`.slice(0, 7000),
             config: { taskType: "RETRIEVAL_DOCUMENT", outputDimensionality: 768 },
           });
