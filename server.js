@@ -53,7 +53,11 @@ if (process.platform === "darwin" && !HOSTED) {
 }
 const hasGws = (() => { if (HOSTED) return false; try { execFileSync("which", ["gws"], { stdio: "ignore" }); return true; } catch { return false; } })();
 const liveCallReady = Boolean(process.env.LIVEKIT_URL && process.env.LIVEKIT_API_KEY && process.env.LIVEKIT_API_SECRET && process.env.SPATIUS_APP_ID);
-const caps = { hosted: HOSTED, capture: Boolean(AudioTee), email: hasGws, liveCall: liveCallReady, simulate: process.platform === "darwin" && !HOSTED };
+// Email: the Mac copy sends through gws (your Gmail); the hosted copy sends through Resend, but only
+// to plus-aliases of the demo inbox, so the open site can't email anyone else.
+const RESEND_KEY = process.env.RESEND_API_KEY || "";
+const canResend = Boolean(RESEND_KEY && process.env.CALLIE_DEMO_INBOX);
+const caps = { hosted: HOSTED, capture: Boolean(AudioTee), email: hasGws || canResend, drafts: hasGws, liveCall: liveCallReady, simulate: process.platform === "darwin" && !HOSTED };
 
 // ------------------------------------------------------------------ fact bases
 // "arize": the Cartwell onboarding call. "panel": Part 2, where Callie answers the interview
@@ -143,6 +147,25 @@ function downsample24to16(b64) {
     out[i] = Math.round(src[j] * (1 - f) + (src[Math.min(j + 1, src.length - 1)] || 0) * f);
   }
   return out;
+}
+const demoAddress = (to) => {
+  const [user, domain] = String(process.env.CALLIE_DEMO_INBOX || "").toLowerCase().split("@");
+  const m = /^([^@+\s]+)(\+[^@\s]+)?@([^@\s]+)$/.exec(String(to || "").trim().toLowerCase());
+  return !!(user && m && m[1] === user && m[3] === domain);
+};
+const resendLog = [];
+async function sendEmailViaResend(draft) {
+  if (!demoAddress(draft.to)) throw new Error(`The hosted demo only emails ${process.env.CALLIE_DEMO_INBOX.replace("@", "+…@")}`);
+  const now = Date.now();
+  while (resendLog.length && now - resendLog[0] > 3600000) resendLog.shift();
+  if (resendLog.length >= 20) throw new Error("Email limit reached for this hour");
+  const res = await fetch("https://api.resend.com/emails", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${RESEND_KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ from: process.env.RESEND_FROM || "Callie <onboarding@resend.dev>", to: [draft.to.trim()], subject: draft.subject, text: draft.body }),
+  });
+  if (!res.ok) throw new Error(`Resend ${res.status}: ${(await res.text()).slice(0, 160)}`);
+  resendLog.push(now);
 }
 function sendEmailViaGws(draft, asDraft) {
   return new Promise((resolve, reject) => {
@@ -606,9 +629,10 @@ class Session {
       case "email_send": {
         const d = msg.draft || {};
         if (!d.to || !d.subject || !d.body) return this.hint("Email needs a recipient, subject and body.", "warning");
-        if (!hasGws) return this.emit({ type: "email", phase: "failed", cardId: msg.cardId, error: "Sending is only set up in the Mac app" });
+        if (!hasGws && !canResend) return this.emit({ type: "email", phase: "failed", cardId: msg.cardId, error: "Sending isn't set up here" });
         try {
-          await sendEmailViaGws(d, !!msg.asDraft);
+          if (hasGws) await sendEmailViaGws(d, !!msg.asDraft);
+          else await sendEmailViaResend(d);
           return this.emit({ type: "email", phase: msg.asDraft ? "saved" : "sent", cardId: msg.cardId, to: d.to });
         } catch (e) {
           return this.emit({ type: "email", phase: "failed", cardId: msg.cardId, error: e.message });

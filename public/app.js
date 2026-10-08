@@ -1072,14 +1072,14 @@ function onEmail(m) {
         <label>Subject<input name="subject" value="${esc(d.subject)}" /></label>
         <label>Message<textarea name="body">${esc(d.body)}</textarea></label>
         <div class="row">
-          ${canSend ? `<button class="mini" data-send="draft" type="button">Save to Gmail drafts</button><button class="cds-btn sm" data-send="now" type="button">Send now</button>` : `<a class="mini" data-mailto>Open in your mail app</a><button class="cds-btn sm" data-copy type="button">Copy email</button>`}
+          ${canSend ? `${ui.caps.drafts ? `<button class="mini" data-send="draft" type="button">Save to Gmail drafts</button>` : ""}<button class="cds-btn sm" data-send="now" type="button">Send now</button>` : `<a class="mini" data-mailto>Open in your mail app</a><button class="cds-btn sm" data-copy type="button">Copy email</button>`}
         </div>
         <div class="note">${canSend ? "Nothing is sent until you click Send now." : "Sending straight from Callie works in the presenter’s Mac app. Here, copy the email or open it in your mail app."}</div></form>`);
     const f = $("form", el);
     const draft = () => ({ to: f.to.value.trim(), subject: f.subject.value.trim(), body: f.body.value });
     if (canSend) {
       $('[data-send="now"]', f).onclick = () => { send({ type: "email_send", cardId: m.cardId, draft: draft() }); $(".note", f).textContent = "Sending…"; };
-      $('[data-send="draft"]', f).onclick = () => { send({ type: "email_send", cardId: m.cardId, draft: draft(), asDraft: true }); $(".note", f).textContent = "Saving to Gmail drafts…"; };
+      if ($('[data-send="draft"]', f)) $('[data-send="draft"]', f).onclick = () => { send({ type: "email_send", cardId: m.cardId, draft: draft(), asDraft: true }); $(".note", f).textContent = "Saving to Gmail drafts…"; };
     } else {
       $("[data-mailto]", f).onclick = (e) => { const d2 = draft(); e.currentTarget.href = `mailto:${encodeURIComponent(d2.to)}?subject=${encodeURIComponent(d2.subject)}&body=${encodeURIComponent(d2.body)}`; };
       $("[data-copy]", f).onclick = async () => {
