@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex, nofollow" />
-  <title>Callie Live · Calendly Labs concept</title>
-  <meta name="description" content="Callie Live: a private copilot for live customer calls. An interview case prototype by Leland Char." />
+  <title>Callie Live Assistant · Calendly Labs concept</title>
+  <meta name="description" content="Callie Live Assistant: a private copilot for live customer calls. An interview case prototype by Leland Char." />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23dbee9f'/%3E%3Cpath d='M16 6l2.2 6.6L25 15l-6.8 2.4L16 24l-2.2-6.6L7 15l6.8-2.4z' fill='%233b5410'/%3E%3C/svg%3E" />
   <link rel="stylesheet" href="/theme.css" />
   <link rel="stylesheet" href="/home.css" />
@@ -48,7 +48,7 @@
   <div class="home" id="home">
     <header class="h-nav-wrap">
       <nav class="h-nav" aria-label="Main">
-        <a class="h-logo" href="/" aria-label="Callie Live home"><span class="brand-tile"><svg><use href="#i-spark" /></svg></span><b>Callie Live</b><span class="cds-pill">Calendly Labs concept</span></a>
+        <a class="h-logo" href="/" aria-label="Callie Live Assistant home"><span class="brand-tile"><svg><use href="#i-spark" /></svg></span><b>Callie Live Assistant</b><span class="cds-pill">Calendly Labs concept</span></a>
         <div class="h-tabs" role="tablist">
           <button class="h-tab is-active" role="tab" data-tab="overview">Overview</button>
           <button class="h-tab" role="tab" data-tab="stack">Technology stack</button>
@@ -63,11 +63,11 @@
 
     <main class="h-view" data-view="overview">
       <!-- hero -->
-      <section class="h-hero" id="watch">
+      <section class="h-hero centered" id="watch">
         <div class="h-hero-copy">
           <p class="cds-eyebrow">Calendly Labs · AI Assistant case</p>
           <h1>Never say “I’ll get back to you” again.</h1>
-          <p class="h-lede">Callie Live is a private copilot for customer calls. It listens from your laptop, answers the customer’s question before you finish saying “good question,” catches your mistakes before they build on them, and puts the right diagram or doc on screen while you’re still talking.</p>
+          <p class="h-lede">Callie Live Assistant is a private assistant for customer calls. It answers the customer’s question before you finish saying “good question,” catches your mistakes before they build on them, and puts the right diagram or doc on screen while you’re still talking.</p>
           <div class="h-cta">
             <button class="cds-btn lg" data-start>Start live call <svg width="16" height="16"><use href="#i-arrow" /></svg></button>
             <button class="cds-btn lg outline" data-play>Play the recording</button>
@@ -76,12 +76,15 @@
         <div class="h-hero-visual">
           <div class="mesh video-mesh">
             <div class="video-card">
-              <video id="demoVideo" controls playsinline preload="metadata" poster="/media/callie-live-demo-poster.jpg" src="/media/callie-live-demo.mp4"></video>
+              <video id="demoVideo" controls playsinline preload="metadata"></video>
             </div>
             <div class="video-meta">
               <span class="rec-dot"></span><span id="recMeta">Unedited screen and sound from the app</span>
             </div>
-            <div class="chapter-chips" id="chapterChips" aria-label="Jump to a chapter"></div>
+          </div>
+          <div class="steps-break">
+            <h2 class="sb-title">What happens, step by step</h2>
+            <ol class="sb-list" id="chapterList" aria-label="Jump to a moment in the recording"></ol>
           </div>
         </div>
       </section>
@@ -91,26 +94,26 @@
         <div class="h-sec-head">
           <p class="cds-eyebrow">The scenario</p>
           <h2>A real onboarding call, played live.</h2>
-          <p>A Cartwell engineering lead booked an onboarding session with Arize through Calendly. You play Arize’s customer success manager. The customer is an AI, and Callie helps only you.</p>
+          <p>Grace Liu, product manager of Cartwell’s AI shopping assistant, booked a working session with Arize through Calendly. She wants to rewrite the assistant’s prompt before the holiday rush without breaking checkout. You play Arize’s customer success manager, and Julian, an Arize solutions engineer, joins you. Grace and Julian are both AI. Callie helps only you.</p>
         </div>
         <div class="h-grid three">
           <article class="h-card brand-card">
             <div class="brand-logo"><img src="/img/brand/cartwell-logo.png" alt="Cartwell" /></div>
             <h3>The customer: Cartwell</h3>
-            <p>A fictional online marketplace building an AI shopping assistant: Python, a LangGraph agent and OpenAI models on AWS. Nine days into a 14-day Arize AX trial, with a holiday code freeze on November 15.</p>
-            <ul class="mini-facts"><li><b>Grace Liu</b> engineering lead, an AI customer</li><li><b>Marcus Lee</b> security, joins halfway</li></ul>
+            <p>A fictional online marketplace with an AI shopping assistant in production. Nine days into a 14-day Arize AX trial, and the holiday rush is weeks away.</p>
+            <ul class="mini-facts"><li><b>Grace Liu</b> product manager of the AI assistant, an AI customer</li><li><b>Her goal</b> a better prompt, tested before launch and watched after</li></ul>
           </article>
           <article class="h-card brand-card">
             <div class="brand-logo arize"><img src="/img/brand/arize-logo.svg" alt="Arize" /></div>
             <h3>The vendor: Arize</h3>
             <p>An AI observability and evaluation platform. Callie answers from Arize’s public documentation (892 passages) plus a short list of verified key facts, the way it would use any company’s own docs.</p>
-            <ul class="mini-facts"><li><b>Jordan Reyes</b> customer success manager, played by you</li><li><b>Callie</b> private to Jordan</li></ul>
+            <ul class="mini-facts"><li><b>Jordan Reyes</b> customer success manager, played by you</li><li><b>Julian Hayes</b> solutions engineer, an AI teammate</li><li><b>Callie</b> private to Jordan</li></ul>
           </article>
           <article class="h-card brand-card setup">
             <div class="brand-logo setup-logo"><span class="cds-tile blue"><svg><use href="#i-clock" /></svg></span><b>Booked via Calendly</b></div>
             <h3>The setup</h3>
-            <p>“Onboarding working session, 45 min.” Grace is a Gemini Live voice with a Spatius avatar on a LiveKit call. Callie hears both sides, answers, checks what you say, reads her tone and draws on the whiteboard.</p>
-            <ul class="mini-facts"><li><b>Four scenarios</b> technical onboarding, or a PM-level call on traces and skills, evals, or prompt changes</li><li><b>Talk or type</b> text chat for presenting over Zoom</li></ul>
+            <p>“Onboarding working session.” Grace and Julian each have a Gemini Live voice and a Spatius avatar on the LiveKit call. Callie hears all three of you, answers, checks what you and Julian say, reads Grace’s tone and draws on the whiteboard.</p>
+            <ul class="mini-facts"><li><b>Bring in Julian</b> say “Julian, …” or type “@Julian” and he walks Grace through it</li><li><b>Talk or type</b> text chat for presenting over Zoom</li></ul>
           </article>
         </div>
       </section>
@@ -129,25 +132,34 @@
               <li><b>Judged on</b> time to first value, retention and expansion</li>
             </ul>
           </div>
-          <img class="icp-art" src="/img/art/icp.jpg" alt="" />
+          <img class="icp-art" src="/img/art/icp.jpg" alt="" data-parallax />
         </div>
         <div class="pains">
-          <div class="pain-row head"><span>What CSMs say about the job</span><span>How Callie Live addresses it</span></div>
+          <div class="pain-row head"><span>Pain points</span><span>How Callie addresses it</span></div>
           <div class="pain-row">
-            <div><b>Unfamiliar questions end in a follow-up.</b><p>Even well-prepared CSMs hit questions they can’t answer, and the standard advice is to admit it, check with colleagues and get back to the customer later.</p><a class="src" href="https://builtin.com/articles/saying-i-dont-know-customer-success" target="_blank" rel="noopener">Built In · Eva Roethler, 2022 ↗</a></div>
-            <div><b>Answers while the customer is still on the line</b><p>The line to say, with its source, in about three seconds, from the company’s own docs and the account notes. In-call resolution is the north star.</p></div>
+            <div class="pain-l"><b>Unfamiliar questions end in a follow-up.</b><p>Even well-prepared CSMs hit questions they can’t answer. The standard advice is to admit it and get back to the customer later.</p>
+              <blockquote>“I’m going to chat with my colleagues to get you the right information.”<cite><a href="https://builtin.com/articles/saying-i-dont-know-customer-success" target="_blank" rel="noopener">A CSM’s script for unknown questions · Built In, 2022 ↗</a></cite></blockquote></div>
+            <div class="pain-r"><b>Answers while the customer is still on the line</b><p>The line to say, with its source, in about three seconds.</p>
+              <div class="pop-card pop-answer" aria-hidden="true"><div class="pk"><span class="pi">✦</span>Grace asked <span>· 2.1 s</span></div><div class="pm">Test the new prompt on a dataset in the Prompt Playground. Nothing ships.</div><div class="pb"><i class="go">Send</i><i>Show on board</i></div></div></div>
           </div>
           <div class="pain-row">
-            <div><b>Customers expect a “quick and easy solution.”</b><p>CSMs aren’t on the product team, yet they need deep, current product knowledge to resolve issues on the spot.</p><a class="src" href="https://successcoaching.co/blog/on-the-job-skills-product-knowledge" target="_blank" rel="noopener">SuccessCOACHING · Tracie Liao, 2022 ↗</a></div>
-            <div><b>Grounded in the docs, refreshed on a schedule</b><p>Callie reads the company’s documentation, help center and verified key facts, and shows the source and its date on every card.</p></div>
+            <div class="pain-l"><b>Customers expect a “quick and easy solution.”</b><p>CSMs aren’t on the product team, yet they need deep, current product knowledge to resolve issues on the spot.</p>
+              <blockquote>“CSMs need product knowledge to be able to respond to customer questions.”<cite><a href="https://successcoaching.co/blog/on-the-job-skills-product-knowledge" target="_blank" rel="noopener">Tracie Liao · SuccessCOACHING, 2022 ↗</a></cite></blockquote></div>
+            <div class="pain-r"><b>Grounded in the company’s own docs</b><p>Every card cites the page it came from, so the CSM can trust it and share it.</p>
+              <div class="pop-card pop-source" aria-hidden="true"><div class="pk"><span class="pi">✦</span>Julian asked <span>· 2.8 s</span></div><div class="pm">Pull test examples from real traces: typical cases plus known failures.</div><div class="psrc"><span class="dot"></span>Source · Arize docs, Build a dataset</div></div></div>
           </div>
           <div class="pain-row">
-            <div><b>Credibility is on the line in every technical call.</b><p>Technical CSMs need enough product depth to be credible, and that knowledge only creates value when it connects to the customer’s goals.</p><a class="src" href="https://www.customersuccesscollective.com/technical-customer-success-manager/" target="_blank" rel="noopener">Customer Success Collective · Grace Gupta, 2026 ↗</a></div>
-            <div><b>Fact-checks and coaching, privately</b><p>A wrong limit or plan gets a correction with a graceful line to say. When the customer sounds confused or skeptical, Callie suggests the next move.</p></div>
+            <div class="pain-l"><b>Credibility is on the line in every technical call.</b><p>Technical CSMs need enough product depth to be credible, and it only pays off when it connects to the customer’s goals.</p>
+              <blockquote>“Technical CSMs need enough product knowledge to be credible.”<cite><a href="https://www.customersuccesscollective.com/technical-customer-success-manager/" target="_blank" rel="noopener">Grace Gupta · Customer Success Collective, 2026 ↗</a></cite></blockquote></div>
+            <div class="pain-r"><b>Fact-checks and coaching, privately</b><p>A wrong claim gets a correction and a graceful line to say. A hesitant customer gets you a nudge.</p>
+              <div class="pop-card pop-check" aria-hidden="true"><div class="pk"><span class="pi">!</span>Correction <span>· 3.3 s</span></div><div class="pm">Email alerts don’t need an Arize login.</div><div class="psay"><b>Say:</b> Your VP can get the alert by email, no account needed.</div></div>
+              <div class="pop-card pop-coach" aria-hidden="true"><div class="pk"><span class="pi">◔</span>Grace sounds hesitant</div><div class="pm small">Reassure her first, then walk through the rollback.</div></div></div>
           </div>
           <div class="pain-row">
-            <div><b>The problems customers bring are technical.</b><p>Data syncing, setup and rollout issues land on the CSM, who is expected to translate complex functionality for the customer.</p><a class="src" href="https://builtin.com/articles/customer-success-managers-embracing-technical-side" target="_blank" rel="noopener">Built In · Tyler Holmes, 2022 ↗</a></div>
-            <div><b>Show it and send it, during the call</b><p>A whiteboard that draws the flow or the snippet, and a step-by-step email or one-page guide you send with one click.</p></div>
+            <div class="pain-l"><b>The problems customers bring are technical.</b><p>Setup and rollout issues land on the CSM, who has to translate complex functionality for the customer.</p>
+              <blockquote>“The challenges customers face are frequently technical.”<cite><a href="https://builtin.com/articles/customer-success-managers-embracing-technical-side" target="_blank" rel="noopener">Tyler Holmes · Built In, 2022 ↗</a></cite></blockquote></div>
+            <div class="pain-r"><b>Show it and send it, during the call</b><p>A whiteboard that draws the flow, and a step-by-step email you send with one click.</p>
+              <div class="pop-card pop-board" aria-hidden="true"><div class="pflow"><i>Traces</i><em>→</em><i>Dataset</i><em>→</em><i>Playground</i><em>→</em><i>Experiment</i></div><div class="pmail"><span>✉ Email Grace the plan</span><i class="go dark">Send now</i></div></div></div>
           </div>
         </div>
       </section>
@@ -157,7 +169,6 @@
         <div class="h-sec-head">
           <p class="cds-eyebrow">MVP capabilities</p>
           <h2>Three things Callie does live.</h2>
-          <p>Scoped for one PM, four engineers and one designer to reach a public beta in 12 weeks. Every example below is real output from the prototype.</p>
         </div>
         <div class="cap">
           <div class="cap-copy">
@@ -204,16 +215,25 @@
             <div class="coach-chip"><span class="ic"><svg viewBox="0 0 24 24"><use href="#i-chat" width="24" height="24" /></svg></span><span><b>Talk time:</b> Pause and hand it back to them.<span class="try">Try: “Grace, what’s the part you’re most unsure about so far?”</span></span></div>
           </div>
         </div>
-        <div class="h-card out wide-out">
-          <h3>Out of scope for the MVP</h3>
-          <ul class="x-list cols">
-            <li>Post-meeting wrap-ups and recaps (Notetaker and Callie already cover them)</li>
-            <li>Speaking to the room</li>
-            <li>Sending anything without a click</li>
-            <li>CRM writes</li>
-            <li>Non-English calls</li>
-            <li>Internal meetings</li>
-          </ul>
+        <div class="h-card out wide-out scope-split">
+          <div>
+            <h3>Out of scope for the MVP</h3>
+            <ul class="x-list">
+              <li>Post-meeting wrap-ups and recaps (Notetaker and Callie already cover them)</li>
+              <li>CRM writes</li>
+              <li>Non-English calls</li>
+              <li>Internal meetings</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Guardrails, always on</h3>
+            <ul class="ok-list">
+              <li>Nothing is sent without your click</li>
+              <li>Callie never speaks to the room; only you hear it</li>
+              <li>Private notes never show up in anything you share</li>
+              <li>No call audio is stored by default</li>
+            </ul>
+          </div>
         </div>
       </section>
 
@@ -246,9 +266,9 @@
           <div>
             <p class="cds-eyebrow">Integration and setup</p>
             <h2 class="h2-left">Set up once by an admin. Nothing to do before each call.</h2>
-            <p class="int-lede">Callie Live is a desktop app that signs in with Calendly. It hears the call at the computer level, so it works next to Zoom, Meet or Teams without a bot.</p>
+            <p class="int-lede">Callie Live Assistant is a desktop app that signs in with Calendly. It hears the call at the computer level, so it works next to Zoom, Meet or Teams without a bot.</p>
           </div>
-          <img class="int-art" src="/img/art/integration.jpg" alt="" />
+          <img class="int-art" src="/img/art/integration.jpg" alt="" data-parallax />
         </div>
         <ol class="steps">
           <li><span class="step-n">1</span><h3>Install and sign in</h3><p>Mac or Windows app, Calendly single sign-on. The admin turns it on for the CS team in Calendly’s admin settings.</p></li>
@@ -276,7 +296,7 @@
         <div class="h-sec-head">
           <p class="cds-eyebrow">Quality</p>
           <h2>Judged feature by feature, before launch and every week after.</h2>
-          <p>A confidently wrong answer or a false correction is a Sev-1. Launch requires zero Sev-1s in the last 200 eval items.</p>
+          <p>A confidently wrong answer or a wrong correction is a serious error (a “Sev-1”). Launch requires none in the last 200 test questions.</p>
         </div>
         <div class="table-wrap">
           <table class="h-table quality">
@@ -300,14 +320,44 @@
       <section class="h-sec" id="metrics">
         <div class="h-sec-head">
           <p class="cds-eyebrow">Metrics</p>
-          <h2>North star: in-call resolution rate.</h2>
-          <p>The share of customer questions answered during the call, with no “I’ll get back to you.” Baseline it before launch from existing Notetaker transcripts by counting questions and the deferrals that answer them later.</p>
+          <h2>One north star, three signals.</h2>
+          <p>Just the numbers that tell us whether Callie is right, whether people keep using it, and whether it’s worth paying for.</p>
         </div>
-        <div class="h-grid four">
-          <article class="h-card metric"><h3>Quality</h3><ul><li>Correction acceptance</li><li>False-correction rate</li><li>Citation coverage</li></ul></article>
-          <article class="h-card metric"><h3>Adoption</h3><ul><li>Weekly active CSMs</li><li>Share of external calls with Callie on</li><li>Sends per call</li></ul></article>
-          <article class="h-card metric"><h3>Business</h3><ul><li>Customers’ time to first value</li><li>Escalations per account</li><li>Teams Plus attach</li></ul></article>
-          <article class="h-card metric"><h3>Guardrails</h3><ul><li>Recording complaints</li><li>Dismiss rate</li><li>p90 latency</li></ul></article>
+        <div class="ns-card">
+          <div class="ns-copy">
+            <span class="ns-tag">North star</span>
+            <h3>In-call resolution rate</h3>
+            <p>Of the questions a customer asks on a call, how many get answered before the call ends, with no “I’ll get back to you.”</p>
+            <p class="ns-how">Before launch, we measure today’s rate from existing Notetaker transcripts: count the customer’s questions, then the ones pushed to a follow-up.</p>
+          </div>
+          <div class="ns-viz" aria-hidden="true">
+            <div class="ns-dots"><i class="y"></i><i class="y"></i><i class="y"></i><i class="y"></i><i class="y"></i><i class="y"></i><i class="y"></i><i></i><i></i><i></i></div>
+            <div class="ns-eq"><b>7 of 10</b> questions answered live <span>= 70%</span></div>
+            <div class="ns-note">Example of how one call is scored</div>
+          </div>
+        </div>
+        <div class="h-grid three signals">
+          <article class="h-card signal">
+            <span class="sig-tag q">Quality</span>
+            <h3>Is it right and useful?</h3>
+            <p>Every card gets a thumbs up or down, and we log whether you used it: said the line, sent the email, showed the board.</p>
+            <div class="sig-viz" aria-hidden="true"><div class="mini-card"><span>Test the prompt on a dataset first.</span><span class="thumbs"><i class="up">👍</i><i>👎</i></span></div><div class="used"><span class="dot"></span>Used: sent to Grace</div></div>
+            <p class="sig-goal"><b>Goal</b> most cards used or rated 👍, and zero confidently wrong answers.</p>
+          </article>
+          <article class="h-card signal">
+            <span class="sig-tag a">Adoption</span>
+            <h3>Do CSMs keep it on?</h3>
+            <p>Weekly active CSMs, and the share of their customer calls with Callie on. Usage traces show what people switch off: if whispers or coaching get turned off, that feature isn’t earning its place.</p>
+            <div class="sig-viz" aria-hidden="true"><div class="toggles"><span>Answers <i class="on"></i></span><span>Fact-checks <i class="on"></i></span><span>Whisper <i></i></span></div></div>
+            <p class="sig-goal"><b>Goal</b> on for most customer calls, week after week.</p>
+          </article>
+          <article class="h-card signal">
+            <span class="sig-tag b">Business</span>
+            <h3>Is it worth paying for?</h3>
+            <p>How many Calendly Teams accounts add Callie Live Assistant, and whether those accounts add seats.</p>
+            <div class="sig-viz" aria-hidden="true"><svg class="spark-line" viewBox="0 0 200 56" preserveAspectRatio="none"><path d="M2 50 C 40 46, 60 40, 90 34 S 150 18, 198 6" fill="none" stroke="#2f6fed" stroke-width="3" stroke-linecap="round" /><path d="M2 50 C 40 46, 60 40, 90 34 S 150 18, 198 6 L198 56 L2 56 Z" fill="rgba(47,111,237,0.12)" /></svg></div>
+            <p class="sig-goal"><b>Goal</b> a clear reason to upgrade, measured by attach rate.</p>
+          </article>
         </div>
       </section>
 
@@ -315,14 +365,43 @@
       <section class="h-sec alt" id="plan">
         <div class="h-sec-head">
           <p class="cds-eyebrow">From now to launch</p>
-          <h2>Demo, build, beta, public beta.</h2>
+          <h2>Twelve weeks, four checkpoints.</h2>
+          <p>Each phase ends with a plain test. We only move on when it passes.</p>
         </div>
-        <ol class="timeline">
-          <li><span class="when">Weeks 0–2</span><h3>Demo it to CSMs</h3><p>Put this prototype in front of 5 to 15 CSMs, including Calendly’s own CS team. Collect 300 real questions for the gold set, define Sev-1, and sign three design partners.</p></li>
-          <li><span class="when">Weeks 3–6</span><h3>Build in a weekly loop</h3><p>Build, run the evals, dogfood on Calendly’s own onboarding calls, repeat. Desktop capture, answers, fact-checks and one-click send come first.</p></li>
-          <li><span class="when">Weeks 7–9</span><h3>Private beta</h3><p>Three to five design partners, each with their own docs as the fact base. Weekly quality reviews and tuning of interruptions.</p></li>
-          <li><span class="when">Weeks 10–12</span><h3>Public beta</h3><p>In Teams Plus, behind the launch gates: zero Sev-1, p90 under 5 seconds, at least 80% correction acceptance.</p></li>
+        <ol class="roadmap">
+          <li>
+            <span class="rm-dot">1</span><span class="rm-when">Weeks 0–2</span>
+            <h3>Demo it to CSMs</h3>
+            <p>Show this prototype to 5 to 15 CSMs, including Calendly’s own CS team. Collect 300 real questions from their calls and sign three design partners.</p>
+            <div class="rm-gate"><b>Move on when</b>three design partners have signed, we have 300 real questions to test against, and we agree on what counts as a serious mistake.</div>
+          </li>
+          <li>
+            <span class="rm-dot">2</span><span class="rm-when">Weeks 3–6</span>
+            <h3>Build in a weekly loop</h3>
+            <p>Build the desktop app with answers, fact-checks and one-click send. Every week, run the 300-question test, use it on Calendly’s own onboarding calls and fix what broke.</p>
+            <div class="rm-gate"><b>Move on when</b>it answers at least 8 of 10 test questions correctly with a source, and Calendly’s own CSMs keep it on for a full week.</div>
+          </li>
+          <li>
+            <span class="rm-dot">3</span><span class="rm-when">Weeks 7–9</span>
+            <h3>Private beta</h3>
+            <p>Three to five design partners connect their own docs and use it on real customer calls. A weekly quality review, and tuning how often Callie interrupts.</p>
+            <div class="rm-gate"><b>Move on when</b>partners keep it on for most customer calls, at least 6 in 10 cards are used or get a 👍, and there are no serious mistakes for two weeks.</div>
+          </li>
+          <li>
+            <span class="rm-dot">4</span><span class="rm-when">Weeks 10–12</span>
+            <h3>Public beta</h3>
+            <p>Open to Calendly Teams customers as a paid add-on (Teams Plus), once it passes the three launch gates below.</p>
+            <div class="rm-gate"><b>Launch when</b>all three gates pass.</div>
+          </li>
         </ol>
+        <div class="gates">
+          <h3>The three launch gates, in plain English</h3>
+          <div class="gate-grid">
+            <div><span class="g-ic">1</span><b>No confident mistakes</b><p>In the last 200 test questions, Callie never gives a confidently wrong answer or a wrong correction. Engineers call this “zero Sev-1.”</p></div>
+            <div><span class="g-ic">2</span><b>Fast enough to use mid-sentence</b><p>9 out of 10 cards show up within 5 seconds of the question. Engineers call this “p90 under 5 seconds.”</p></div>
+            <div><span class="g-ic">3</span><b>CSMs agree with its corrections</b><p>CSMs accept at least 8 out of 10 corrections instead of dismissing them.</p></div>
+          </div>
+        </div>
       </section>
 
       <!-- risks -->
@@ -352,25 +431,35 @@
           <p class="cds-eyebrow">Why it’s strategic for Calendly</p>
           <h2>Calendly owns before and after the meeting. During is the open stage.</h2>
         </div>
-        <div class="stages">
-          <div class="stage-col"><span class="cds-tile blue"><svg><use href="#i-clock" /></svg></span><h3>Before</h3><p>Who’s coming and why, in the invitee’s own words. Routing, reminders, booking notes.</p><span class="tag">Calendly today</span></div>
-          <div class="stage-col during"><span class="cds-tile callie"><svg><use href="#i-spark" /></svg></span><h3>During</h3><p>The one stage where Calendly is passive. Callie Live fills it with context no one else has: the booking itself.</p><span class="tag">Callie Live</span></div>
-          <div class="stage-col"><span class="cds-tile teal"><svg><use href="#i-mail" /></svg></span><h3>After</h3><p>Notetaker recaps and Callie follow-ups. Callie Live hands them a call where fewer things were left open.</p><span class="tag">Calendly today</span></div>
+        <div class="lifecycle">
+          <img class="lc-art" src="/img/art/lifecycle.jpg" alt="One meeting, left to right: booking it, the live call with a private assistant, and the recap afterwards" width="2000" height="667" />
+          <div class="lc-stages">
+            <div class="lc-stage">
+              <span class="lc-when">Before the meeting</span>
+              <h3>Calendly books it</h3>
+              <p>Booking pages, routing and reminders. Calendly knows who’s coming and why, in the invitee’s own words.</p>
+              <span class="lc-own">Calendly today</span>
+            </div>
+            <div class="lc-stage during">
+              <span class="lc-when">During the meeting</span>
+              <h3>Callie Live Assistant helps you</h3>
+              <p>Answers, fact-checks and coaching while you talk, using context no one else has: the booking itself.</p>
+              <span class="lc-own new">The open stage</span>
+            </div>
+            <div class="lc-stage">
+              <span class="lc-when">After the meeting</span>
+              <h3>Notetaker and Callie follow up</h3>
+              <p>Recaps and follow-ups. What Callie answered and sent during the call flows into the recap, so the follow-up is mostly done.</p>
+              <span class="lc-own">Calendly today</span>
+            </div>
+          </div>
         </div>
-        <div class="h-grid three strat">
-          <article class="h-card"><h3>The context nobody else has</h3><p>The booking says who’s coming, why and what was promised. Platform assistants in Zoom, Teams and Meet don’t see it, and they work for the meeting owner’s company, not the CSM.</p></article>
-          <article class="h-card"><h3>Revenue where Calendly is strongest</h3><p>Customer-facing teams already run on Calendly Teams and Enterprise. A live copilot is a reason to add seats and upgrade, measured by Teams Plus attach.</p></article>
-          <article class="h-card"><h3>A loop that compounds</h3><p>Every question asked live shows what the docs are missing and grows the eval set, so answers get better as more calls run through it.</p></article>
+        <div class="lc-why">
+          <div><span class="lc-ic blue"><svg><use href="#i-clock" /></svg></span><b>The context nobody else has</b><p>The booking says who’s coming, why, and what was promised. Assistants built into Zoom, Teams and Meet don’t see it, and they work for the meeting owner’s company, not the CSM.</p></div>
+          <div><span class="lc-ic lime"><svg><use href="#i-spark" /></svg></span><b>Revenue where Calendly is strongest</b><p>Customer-facing teams already run on Calendly Teams and Enterprise. A live assistant is a reason to add seats and upgrade.</p></div>
+          <div><span class="lc-ic violet"><svg><use href="#i-book" /></svg></span><b>A loop that compounds</b><p>Every question asked live shows what the docs are missing and adds to the test set, so answers improve as more calls run through it.</p></div>
         </div>
-        <div class="notetaker">
-          <div><p class="cds-eyebrow">How it relates to Notetaker</p><h3>Notetaker remembers the meeting. Callie Live helps you during it.</h3></div>
-          <ul class="tick-list">
-            <li><b>Shared capture.</b> Both hear the call; Calendly is already testing bot-free capture for Notetaker, and Callie Live rides the same direction.</li>
-            <li><b>A clean handoff.</b> Answers, corrections and sends from the call flow into the Notetaker recap, so the follow-up is mostly done.</li>
-            <li><b>The baseline.</b> Notetaker transcripts measure today’s in-call resolution rate and seed the eval set before launch.</li>
-            <li><b>One Callie.</b> Before, during and after the meeting, under one assistant brand.</li>
-          </ul>
-        </div>
+        <div class="lc-note"><b>How it relates to Notetaker.</b> Notetaker remembers the meeting; Callie Live Assistant helps you during it. They share the same bot-free capture direction, Notetaker transcripts set today’s baseline and seed the test set, and it’s one Callie before, during and after the meeting.</div>
       </section>
 
       <!-- final CTA -->
@@ -386,7 +475,7 @@
       </section>
 
       <footer class="h-foot">
-        <p>Callie Live is a concept prototype for an interview case by Leland Char. It is not a Calendly product and is not affiliated with Calendly or Arize. Cartwell and its people are fictional; the Arize logo identifies the vendor in the scenario. Answers come from Arize’s public documentation.</p>
+        <p>Callie Live Assistant is a concept prototype for an interview case by Leland Char. It is not a Calendly product and is not affiliated with Calendly or Arize. Cartwell and its people are fictional; the Arize logo identifies the vendor in the scenario. Answers come from Arize’s public documentation.</p>
       </footer>
     </main>
 
@@ -394,44 +483,89 @@
     <main class="h-view stack-view" data-view="stack" hidden>
       <section class="stack-hero">
         <p class="cds-eyebrow">Technology stack</p>
-        <h1>How Callie Live is built.</h1>
+        <h1>How Callie Live Assistant is built.</h1>
         <p class="h-lede">A working prototype, not a mockup: a real video call with an AI customer, and a copilot that hears both sides and responds in seconds.</p>
         <div class="h-cta"><a class="cds-btn" href="https://github.com/lelandchar/callie-live" target="_blank" rel="noopener">View the code on GitHub</a><span class="stack-note">Private repository; ask Leland for access.</span></div>
       </section>
-      <section class="arch">
-        <div class="arch-col">
-          <div class="arch-box you"><b>Your browser</b><span>The call screen: LiveKit client, the Spatius avatar rendered locally in WebAssembly, your mic and camera, and two audio taps that stream 16 kHz audio to Callie</span></div>
+      <section class="h-sec stack-sec hear">
+        <div class="h-sec-head">
+          <p class="cds-eyebrow">What hears the call</p>
+          <h2>No bot joins the meeting.</h2>
+          <p>Callie listens on your side of the call, the same way your own ears do. Here’s where the sound comes from in the real product, and in this demo.</p>
         </div>
-        <div class="arch-links"><span>WebRTC</span><span>WebSocket</span></div>
-        <div class="arch-col two">
-          <div class="arch-box"><b>LiveKit Cloud</b><span>The call room. Dispatches the customer agent when you join</span></div>
-          <div class="arch-box callie"><b>Callie server</b><span>Node 22 on Railway: voice activity detection, the listen, answer, check and coach loop, retrieval, whiteboard and email drafts</span></div>
-        </div>
-        <div class="arch-links"><span>audio</span><span>API</span></div>
-        <div class="arch-col two">
-          <div class="arch-box"><b>Customer agent</b><span>Python LiveKit Agents worker on Railway. Gemini 3.8 Live is Grace’s voice; the Spatius plugin turns it into avatar motion</span></div>
-          <div class="arch-box"><b>Gemini models</b><span>3.5 Flash-Lite hears each utterance; 3.8 Flash answers, checks and coaches; Live whispers; embeddings for retrieval</span></div>
+        <div class="hear-lanes">
+          <div class="lane">
+            <span class="lane-tag real">The real product</span>
+            <ol class="lane-flow">
+              <li><b>Your Zoom, Meet or Teams call</b><span>Nothing changes for the customer. No extra participant, no recording bot.</span></li>
+              <li><b>Your laptop’s sound</b><span>The customer’s voice coming out of your speakers, and your microphone.</span></li>
+              <li class="callie"><b>Callie Live Assistant, a desktop app</b><span>Hears both sides on your computer and keeps them apart, so it knows who said what.</span></li>
+              <li><b>A private panel only you see</b><span>Answers, fact-checks and coaching next to your call.</span></li>
+            </ol>
+          </div>
+          <div class="lane">
+            <span class="lane-tag demo">This demo</span>
+            <ol class="lane-flow">
+              <li><b>A simulated video call</b><span>Grace (the customer) and Julian (an Arize engineer) are AI, on a real video-call service.</span></li>
+              <li><b>Your browser taps the call’s audio</b><span>It passes their voices, and your microphone or typed lines, to Callie. This stands in for the desktop app.</span></li>
+              <li class="callie"><b>The Callie server</b><span>Does exactly what the product would: listens, looks things up, thinks, and responds.</span></li>
+              <li><b>The panel on the right</b><span>The same cards, whiteboard and email drafts.</span></li>
+            </ol>
+          </div>
         </div>
       </section>
-      <section class="h-sec stack-sec">
-        <div class="table-wrap">
-          <table class="h-table">
-            <thead><tr><th>Piece</th><th>Technology</th><th>Why</th></tr></thead>
-            <tbody>
-              <tr><td><b>Hearing the call</b></td><td>Two audio channels (customer and CSM); an energy-based voice activity detector splits utterances</td><td>Speaker attribution for free; the Mac app taps system audio, so no bot joins</td></tr>
-              <tr><td><b>Understanding</b></td><td>Gemini 3.5 Flash-Lite with structured output: transcript, kind of moment, tone</td><td>About 1 to 1.7 s per utterance</td></tr>
-              <tr><td><b>Answers and checks</b></td><td>Gemini 3.8 Flash over hybrid retrieval (BM25 plus gemini-embedding-001) across 892 doc passages and verified key facts</td><td>Grounded, cited, about 3 to 5 s</td></tr>
-              <tr><td><b>Private whisper</b></td><td>Gemini 3.8 Live</td><td>First audio in about 0.6 s</td></tr>
-              <tr><td><b>Whiteboard</b></td><td>The model sends meaning only (flow, code, checklist, note); the browser lays it out</td><td>Malformed items are dropped, never break the call</td></tr>
-              <tr><td><b>The AI customer</b></td><td>LiveKit Agents 1.8, Gemini 3.8 Live, Spatius avatar plugin; persona and scenario passed in the dispatch</td><td>Natural turn-taking, a real face, swappable scenarios</td></tr>
-              <tr><td><b>Text chat mode</b></td><td>LiveKit text streams to the agent; typed lines go through Callie’s same checks</td><td>Presenting over Zoom without the mic</td></tr>
-              <tr><td><b>Recorded demo</b></td><td>ElevenLabs v4 voices; the avatar lip-syncs through Spatius direct mode; the video is filmed from the real app</td><td>A reliable backup with sound</td></tr>
-              <tr><td><b>Hosting</b></td><td>Railway project with two services (web and agent), access code, noindex</td><td>One URL to share with the panel</td></tr>
-              <tr><td><b>Tests</b></td><td>Playwright end-to-end calls with a simulated mic and with text; a 15-check scripted eval</td><td>Every change is checked against real calls</td></tr>
-            </tbody>
-          </table>
+
+      <section class="h-sec alt stack-sec">
+        <div class="h-sec-head">
+          <p class="cds-eyebrow">What happens to each thing someone says</p>
+          <h2>Hear, understand, look it up, respond.</h2>
+          <p>About three seconds from the end of a question to a card on your screen.</p>
         </div>
-        <p class="stack-foot">Built with Claude Code. Illustrations made with gpt-image-2. The design follows Calendly’s 2026 visual language as an homage; this is not a Calendly product.</p>
+        <ol class="flow5">
+          <li><div class="p-node"><span class="p-ic">1</span><b>Hear</b><em>Voice activity detection</em></div><p>Splits the call into short pieces of speech, each tagged with who spoke: you, the customer or your teammate.</p></li>
+          <li><div class="p-node"><span class="p-ic">2</span><b>Understand</b><em>Gemini 3.5 Flash-Lite</em></div><p>A small, fast model writes down what was said and decides what kind of moment it is: a question, a claim worth checking, a request to Callie, or just conversation. It also notes the customer’s tone. Takes about a second.</p></li>
+          <li><div class="p-node"><span class="p-ic">3</span><b>Look it up</b><em>Keyword + meaning search</em></div><p>Finds the few passages that matter in the company’s docs (892 Arize passages here) and a short list of facts that must never be wrong.</p></li>
+          <li><div class="p-node"><span class="p-ic">4</span><b>Think</b><em>Gemini 3.8 Flash, raced with 3.6 Flash</em></div><p>A bigger model writes the answer, the correction or the coaching tip, always with its source. Two models run at once and the first good answer wins, because speed varies by the hour.</p></li>
+          <li class="out"><div class="p-node"><span class="p-ic">5</span><b>Respond</b><em>The panel</em></div><p>One card in focus, a drawing on the whiteboard, or an email draft that waits for your click. Optionally, a short whisper in your ear (Gemini 3.8 Live).</p></li>
+        </ol>
+      </section>
+
+      <section class="h-sec stack-sec">
+        <div class="h-sec-head">
+          <p class="cds-eyebrow">Two halves</p>
+          <h2>The pretend meeting, and the real assistant.</h2>
+          <p>Only the right-hand side is the product. The left-hand side exists so there’s someone to talk to.</p>
+        </div>
+        <div class="halves">
+          <div class="half sim">
+            <span class="lane-tag demo">The simulated meeting · demo only</span>
+            <ul class="tech">
+              <li><b>LiveKit Cloud</b><span>The video-call room everyone joins.</span></li>
+              <li><b>LiveKit Agents (Python)</b><span>Runs the AI people. One worker plays every role, with the persona handed over when the call starts.</span></li>
+              <li><b>Gemini 3.8 Live</b><span>Grace’s and Julian’s voices and brains: they hear you and answer out loud, natively, with no separate speech-to-text.</span></li>
+              <li><b>Spatius avatars</b><span>Faces that move with the voice, drawn in your browser.</span></li>
+              <li><b>ElevenLabs v4</b><span>Jordan’s pre-voiced lines in the recorded call.</span></li>
+              <li><b>Browser audio taps</b><span>Stand in for the desktop app’s capture of your computer’s sound.</span></li>
+            </ul>
+          </div>
+          <div class="half prod">
+            <span class="lane-tag real">Callie Live Assistant · the product</span>
+            <ul class="tech">
+              <li><b>Capture</b><span>Two channels, you and everyone else, so speakers are known. A desktop app in the product; browser taps in this demo.</span></li>
+              <li><b>Gemini 3.5 Flash-Lite</b><span>Hears each piece of speech and labels it in about a second.</span></li>
+              <li><b>Search over the company’s docs</b><span>Keyword search plus Gemini embeddings, refreshed on a schedule, with verified key facts on top.</span></li>
+              <li><b>Gemini 3.8 Flash (raced with 3.6 Flash)</b><span>Answers, fact-checks and coaching, with sources.</span></li>
+              <li><b>Gemini 3.8 Live</b><span>The optional whisper in your ear, first sound in about 0.6 seconds.</span></li>
+              <li><b>Whiteboard and drafts</b><span>The model sends meaning; the browser draws it. Emails wait for your click.</span></li>
+              <li><b>Calendly booking context</b><span>Who’s coming, why, and what they asked for when they booked.</span></li>
+            </ul>
+          </div>
+        </div>
+        <div class="stack-ops">
+          <div><b>Hosting</b><span>Railway: one service for the web app, one for the AI people. Rate-limited, not indexed by search engines.</span></div>
+          <div><b>Testing</b><span>Automated end-to-end calls (spoken and typed) and a scripted 15-check test of the recorded call.</span></div>
+          <div><b>Built with</b><span>Claude Code. Illustrations by gpt-image-2. The design follows Calendly’s 2026 visual language as an homage; this is not a Calendly product.</span></div>
+        </div>
       </section>
     </main>
 
@@ -440,23 +574,22 @@
 
   <!-- ================================================================ CALL ================ -->
   <div class="app" id="app" hidden>
-    <header class="topbar">
-      <a class="brand" href="/" data-home><span class="brand-tile"><svg><use href="#i-spark" /></svg></span><b>Callie Live</b></a>
-      <span class="brand-sub">Your private AI copilot for customer conversations</span>
-      <div class="topbar-right">
-        <span class="status-chip" id="statusChip"><span class="dot"></span><span id="statusText">Private to you</span></span>
-        <span class="lock-chip"><svg><use href="#i-lock" /></svg>Here to help, not to record</span>
-        <a class="home-link" href="/" data-home>Overview</a>
-      </div>
-    </header>
 
     <main class="call-grid">
       <section class="stage" id="stage" aria-label="Video call">
         <div class="video" id="video">
           <div class="avatar-layer" id="avatarStage"></div>
           <div class="customer-still" id="customerStill"><span class="initials">GL</span></div>
-          <div class="chip-timer" id="timerChip"><span class="rec"></span><span id="callTimer">00:00:00</span><span class="sep"></span><span>Customer call</span></div>
-          <div class="selfview" id="selfView"><video id="selfVideo" autoplay muted playsinline></video><div class="self-fallback">JR</div><div class="self-label"><span>Jordan (you)</span><span class="bars" id="micBars"><i></i><i></i><i></i></span></div></div>
+          <div class="chip-timer" id="timerChip"><span class="rec"></span><span id="callTimer">00:00:00</span></div>
+          <div class="filmstrip">
+            <div class="selfview" id="selfView"><video id="selfVideo" autoplay muted playsinline></video><div class="self-fallback">JR</div><div class="self-label"><span>Jordan (you)</span><span class="bars" id="micBars"><i></i><i></i><i></i></span></div></div>
+            <div class="selfview mate-tile" id="mateTile" hidden>
+              <div class="mate-stage" id="mateStage"></div>
+              <div class="self-fallback mate-fallback">JH</div>
+              <button class="ask-mate" id="askMateBtn" type="button">Ask Julian</button>
+              <div class="self-label"><span id="mateLabel">Julian Hayes · Arize</span></div>
+            </div>
+          </div>
           <div class="selfview guest-tile" id="guestTile" hidden><div class="self-fallback">ML</div><div class="self-label"><span>Marcus Lee</span></div></div>
           <div class="nameplate"><b>Grace Liu · Cartwell</b><span id="nameRole">Engineering Lead</span></div>
           <div class="captions" id="captions" aria-live="polite"></div>
@@ -471,7 +604,7 @@
 
           <div class="overlay" id="overlay">
             <div class="join-card" id="joinCard">
-              <div class="eyebrow" id="joinEyebrow">Onboarding working session · 45 min</div>
+              <div class="eyebrow" id="joinEyebrow">Onboarding working session</div>
               <h2 id="joinTitle">Ready to join your call with Grace?</h2>
               <p id="joinText">Grace is an AI customer: a Gemini Live voice with a Spatius avatar, on a LiveKit call. Callie listens to both of you and helps only you.</p>
               <div class="progress" id="avatarProgress"><i></i></div>
@@ -486,6 +619,7 @@
         </div>
 
         <div class="controls">
+          <a class="ctl ctl-home" href="/" data-home aria-label="Back to the overview" title="Back to the overview"><svg><use href="#i-arrow" /></svg></a>
           <span class="ctl-label" id="ctlLabel"></span>
           <button class="ctl" id="micBtn" aria-label="Mute microphone" title="Mute"><svg><use href="#i-mic" /></svg></button>
           <button class="ctl" id="camBtn" aria-label="Turn camera off" title="Camera"><svg><use href="#i-video" /></svg></button>
@@ -509,30 +643,31 @@
               <div id="simMenu"></div>
             </div>
             <h4>Session</h4>
+            <button class="item" id="openBoardBtn" type="button">Open the whiteboard</button>
             <button class="item" id="resetBtn" type="button">Clear cards and whiteboard</button>
           </div>
         </div>
       </section>
 
-      <aside class="callie" aria-label="Callie, private to you">
-        <section class="c-card c-now">
-          <div class="callie-head">
-            <span class="brand-tile"><svg><use href="#i-spark" /></svg></span>
-            <div><b>Callie</b><span class="sub" id="callieSub">Ready when you are</span></div>
-            <span class="cheer" id="cheer"><svg><use href="#i-spark" /></svg><span>Private to you</span></span>
-          </div>
-          <div class="now-label">Now</div>
+      <aside class="callie" aria-label="Callie Live Assistant, private to you">
+        <div class="callie-head">
+          <span class="brand-tile"><svg><use href="#i-spark" /></svg></span>
+          <b>Callie Live Assistant</b>
+          <span class="live-dot" id="liveDot" title="Only you can see this"></span>
+        </div>
+        <div class="feed" id="earlier">
           <div class="now-stack" id="now">
-            <div class="now-empty" id="nowEmpty"><b>Callie is listening for questions, claims and tone.</b> Answers, corrections and coaching land here, one moment at a time.</div>
+            <div class="now-empty" id="nowEmpty"><span class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span id="nowEmptyText">Ready</span></div>
           </div>
-        </section>
-
-        <section class="c-card c-board">
+          <div class="recent" id="timeline"></div>
+          <button class="recent-more" id="tlToggle" type="button" hidden><span id="tlCount"></span></button>
+        </div>
+        <section class="c-board" id="boardCard" hidden>
           <div class="c-head">
             <span class="c-icon"><svg><use href="#i-board" /></svg></span>
             <h3>Whiteboard</h3>
             <div class="right" style="position:relative">
-              <button class="pill-btn" id="toolBtn" aria-haspopup="true">Draw together <svg><use href="#i-down" /></svg></button>
+              <button class="icon-btn" id="toolBtn" type="button" aria-haspopup="true" aria-label="Draw together" title="Draw together"><svg><use href="#i-pen" /></svg></button>
               <div class="tool-menu" id="toolMenu" hidden>
                 <button data-tool="select" class="is-active"><svg width="15" height="15"><use href="#i-pointer" /></svg>Select<kbd>V</kbd></button>
                 <button data-tool="pen"><svg width="15" height="15"><use href="#i-pen" /></svg>Pen<kbd>P</kbd></button>
@@ -547,27 +682,16 @@
           <div class="board" id="board">
             <svg class="ink" id="ink"></svg>
             <div class="board-items" id="boardItems"></div>
-            <div class="board-empty" id="boardEmpty">Callie draws here when a picture helps: setup flows, code, checklists.<br />Use Draw together to add your own.</div>
+            <div class="board-empty" id="boardEmpty"></div>
             <div class="board-cursor" id="boardCursor"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M4 3l7 17 2.5-7L21 10.5z" fill="#3b5410" stroke="#fff" stroke-width="1.5" /></svg><span>Callie</span></div>
           </div>
         </section>
-
-        <section class="c-card c-earlier" id="earlier">
-          <div class="c-head">
-            <span class="c-icon"><svg><use href="#i-clock" /></svg></span>
-            <h3>Earlier</h3>
-            <div class="right"><button class="pill-btn" id="tlToggle"><span id="tlCount">0 moments</span> <svg><use href="#i-down" /></svg></button></div>
-          </div>
-          <div class="list" id="timeline"><div class="tl-empty">Past moments collect here, one line each.</div></div>
-        </section>
-
         <form class="ask" id="askForm" autocomplete="off">
           <span class="spark"><svg><use href="#i-spark" /></svg></span>
-          <input id="askInput" placeholder="Ask Callie privately…" aria-label="Ask Callie privately" />
+          <input id="askInput" placeholder="Ask privately…" aria-label="Ask Callie privately" />
           <button class="round hold" id="pttBtn" type="button" title="Hold to ask Callie out loud" aria-label="Hold to ask Callie out loud"><svg><use href="#i-mic" /></svg></button>
           <button class="round" id="askSend" type="submit" aria-label="Ask"><svg><use href="#i-arrow" /></svg></button>
         </form>
-        <div class="ask-hint"><span>Answers, drafts and coaching. Only you see this.</span><span><kbd>⌘ K</kbd> to focus</span></div>
       </aside>
     </main>
 

@@ -1,0 +1,52 @@
+[
+  {
+    "id": "intro",
+    "match": "",
+    "text": "Hi Grace, great to see you. I brought Julian, one of our solutions engineers, so we can make this hands-on. Julian, can you walk Grace through testing a new prompt without shipping it?"
+  },
+  {
+    "id": "staging",
+    "match": "staging|deploy every|deploy each",
+    "text": "Right, and no staging needed. The playground runs your new prompt against a dataset, so production never sees it."
+  },
+  {
+    "id": "examples",
+    "match": "examples|test data|where do|come from|which conversations",
+    "text": "Good question. Julian, where should Grace pull the test examples from?"
+  },
+  {
+    "id": "models",
+    "match": "cheaper|model|cost",
+    "text": "Yes. Compare Models runs the same prompt across models side by side, so you see quality and cost together."
+  },
+  {
+    "id": "nervous",
+    "match": "nervous|break|checkout|worried|scared|risk",
+    "text": "Totally fair, especially before the holidays. You run it as an experiment first and only ship the winner. Julian, what would Grace watch after launch?"
+  },
+  {
+    "id": "mistake",
+    "match": "",
+    "text": "And one thing on alerts: they only go to people with Arize logins, so we'd add your VP as a user."
+  },
+  {
+    "id": "dashboard",
+    "match": "vp|one page|dashboard|leadership",
+    "text": "And since your VP wants one page to look at: Julian, what would you put on that dashboard?"
+  },
+  {
+    "id": "send",
+    "match": "send|plan|recap|summary|email",
+    "text": "I'll send you the plan right now, while we're still on the call."
+  },
+  {
+    "id": "bye",
+    "match": "",
+    "text": "Thanks so much, Grace. Talk soon."
+  },
+  {
+    "id": "pass",
+    "match": "",
+    "text": "Good question. Julian, can you take that one?"
+  }
+]

@@ -2,7 +2,7 @@
   "name": "callie-live",
   "version": "0.1.0",
   "private": true,
-  "description": "Callie Live: a private, live copilot for customer calls (concept prototype for a Calendly interview case; not affiliated with Calendly or Arize)",
+  "description": "Callie Live Assistant: a private, live copilot for customer calls (concept prototype for a Calendly interview case; not affiliated with Calendly or Arize)",
   "type": "module",
   "scripts": {
     "ingest": "node scripts/ingest-arize.mjs",

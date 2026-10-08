@@ -1,4 +1,4 @@
-# Callie Live web service: the Node server, the static app and the Arize fact base.
+# Callie Live Assistant web service: the Node server, the static app and the Arize fact base.
 FROM node:22-slim
 WORKDIR /app
 ENV NODE_ENV=production CALLIE_HOSTED=1

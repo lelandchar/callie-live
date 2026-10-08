@@ -36,15 +36,31 @@ const LINES = {
     [115, "Good question. Let me check that for you."],
   ],
 };
-const lines = LINES[SCENARIO] || LINES.arize;
+LINES["relay"] = [
+  [22, "Julian, can you walk Grace through testing a new prompt without shipping it?"],
+];
+LINES["claim"] = [
+  [28, "And alerts only go to people with Arize logins, so we'd add your VP as a user."],
+];
+LINES["prompt-monitor"] = [
+  [22, "Hi Grace, thanks for making the time. I brought Julian, one of our solutions engineers."],
+  [45, "Julian, can you walk Grace through testing a new prompt without shipping it?"],
+  [95, "And alerts only go to people with Arize logins, so we'd add your VP as a user."],
+  [125, "Julian, what would you put on a dashboard for Grace's VP?"],
+];
+const lines = LINES[process.env.LINESET || SCENARIO] || LINES.arize;
 const seen = new Set();
 const dump = async () => {
   const s = await page.evaluate(() => ({
-    chat: [...document.querySelectorAll("#chatLog .chat-msg")].map((m) => `${m.classList.contains("you") ? "you" : "grace"}: ${m.querySelector("span").textContent}`),
+    chat: [...document.querySelectorAll("#chatLog .chat-msg")].map((m) => `${m.classList.contains("you") ? "you" : m.classList.contains("julian") ? "julian" : "grace"}: ${m.querySelector("span").textContent}`),
     cards: [...window.callieDebug.ui.cards.values()].filter((c) => c.status !== "thinking").map((c) => `${c.type}: ${(c.short || c.correction || c.nudge || c.answer || "").slice(0, 100)}`),
     timer: document.getElementById("callTimer").textContent,
     dock: !document.getElementById("chatDock").hidden,
+    hints: [...document.querySelectorAll("#hints .hint span")].map((h) => h.textContent),
+    heard: window.callieDebug.ui.transcript.map((u) => `${u.who}: ${u.text}`),
   }));
+  for (const h of s.hints) if (!seen.has(`hint:${h}`)) { seen.add(`hint:${h}`); console.log("   hint", h.slice(0, 160)); }
+  for (const h of s.heard) if (!seen.has(`heard:${h}`)) { seen.add(`heard:${h}`); console.log("   callie heard", h.slice(0, 140)); }
   for (const c of s.chat) if (!seen.has(c)) { seen.add(c); console.log("   chat", c.slice(0, 160)); }
   for (const c of s.cards) if (!seen.has(c)) { seen.add(c); console.log("   card", c); }
   return s;
@@ -55,9 +71,10 @@ for (const [at, text] of lines) {
   await page.press("#chatInput", "Enter");
   console.log(`t+${Math.round((Date.now() - t0) / 1000)}s typed: ${text}`);
 }
-while (Date.now() - t0 < 140000) { await page.waitForTimeout(2500); await dump(); }
+while (Date.now() - t0 < (Number(process.env.SECONDS) || 140) * 1000) { await page.waitForTimeout(2500); await dump(); }
 const s = await dump();
 await page.screenshot({ path: path.join(outDir, "text-mode.png") });
+console.log("\nfinal chat:\n" + s.chat.map((c) => "  " + c.slice(0, 150)).join("\n"));
 console.log(`\nsummary: dock=${s.dock} timer=${s.timer} grace lines=${s.chat.filter((c) => c.startsWith("grace")).length} cards=${s.cards.length} [${[...new Set(s.cards.map((c) => c.split(":")[0]))].join(", ")}]`);
 await page.evaluate(() => document.getElementById("endBtn").click());
 await page.waitForTimeout(1500);

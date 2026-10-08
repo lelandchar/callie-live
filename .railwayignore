@@ -13,3 +13,5 @@ public/img/office-raw.png
 public/img/brand/cartwell-logo-raw.png
 public/img/art/*-raw.png
 public/media/.rec-*
+public/media/*.events.json
+public/media/callie-live-demo*

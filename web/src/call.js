@@ -43,7 +43,7 @@ export async function loadAvatar(stage, { appId, avatarId, mode = "rtc", onProgr
   // A browser without WebGL2 never draws a first frame; give up instead of waiting forever.
   await Promise.race([
     new Promise((resolve) => { view.onFirstRendering = resolve; }),
-    new Promise((_, reject) => setTimeout(() => reject(new Error("The avatar couldn't render in this browser.")), 25000)),
+    new Promise((_, reject) => setTimeout(() => reject(new Error("The avatar couldn't render in this browser.")), 12000)),
   ]).catch((e) => { try { view.dispose(); } catch {} throw e; });
   return view;
 }
@@ -148,7 +148,9 @@ function wireRoom(room, { onRemoteAudio, onTranscript, onState }) {
         text += chunk;
         onTranscript?.({ identity: from?.identity, local, text, final: false, id });
       }
-      onTranscript?.({ identity: from?.identity, local, text, final: attrs["lk.transcription_final"] !== "false", id });
+      // The stream closes when the segment is done (in sync with the speech). Agents don't
+      // always send a separate final segment, so the close is what counts.
+      onTranscript?.({ identity: from?.identity, local, text, final: true, id });
     });
   } catch {}
 

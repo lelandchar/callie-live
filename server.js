@@ -1,4 +1,4 @@
-// Callie Live — server.
+// Callie Live Assistant — server.
 // Each browser tab is a session with its own call, cards and whiteboard. Callie hears two
 // channels per session:
 //   you:  the CSM's mic, streamed from the browser.
@@ -27,6 +27,12 @@ import { PersonaAgent, PRIYA_PROMPT } from "./lib/persona.js";
 
 const ROOT = path.dirname(fileURLToPath(import.meta.url));
 const PUBLIC = path.join(ROOT, "public");
+// The presenter's notes live outside public/ and unlock with README_PASSWORD (a cookie keeps them open).
+const README_FILE = path.join(ROOT, "private", "readme.html");
+const README_PASSWORD = process.env.README_PASSWORD || "";
+const readmeCookie = README_PASSWORD ? crypto.createHash("sha256").update(`callie-readme:${README_PASSWORD}`).digest("hex").slice(0, 40) : "";
+const readmeTries = new Map();
+const readmeUnlocked = (req) => !!readmeCookie && (req.headers.cookie || "").split(/;\s*/).includes(`callie_readme=${readmeCookie}`);
 const HOSTED = Boolean(process.env.RAILWAY_ENVIRONMENT || process.env.CALLIE_HOSTED);
 const PORT = Number(process.env.PORT || 4317);
 const HOST = process.env.HOST || (HOSTED ? "0.0.0.0" : "127.0.0.1");
@@ -51,12 +57,12 @@ const caps = { hosted: HOSTED, capture: Boolean(AudioTee), email: hasGws, liveCa
 
 // ------------------------------------------------------------------ fact bases
 // "arize": the Cartwell onboarding call. "panel": Part 2, where Callie answers the interview
-// panel's questions about Callie Live, grounded in the pre-read.
+// panel's questions about Callie Live Assistant, grounded in the pre-read.
 function chunkMarkdown(md, url) {
   const out = [];
   let heading = "Overview";
   let buf = [];
-  const flush = () => { const text = buf.join("\n").trim(); if (text.length > 60) out.push({ id: `${url}#${out.length}`, title: "Callie Live pre-read", heading, url, text }); buf = []; };
+  const flush = () => { const text = buf.join("\n").trim(); if (text.length > 60) out.push({ id: `${url}#${out.length}`, title: "Callie Live Assistant pre-read", heading, url, text }); buf = []; };
   for (const line of md.split("\n")) {
     if (/^#{1,3}\s/.test(line)) { flush(); heading = line.replace(/^#+\s+/, ""); continue; }
     buf.push(line);
@@ -87,7 +93,7 @@ function loadProfile(name) {
     account.attendees = [...scenario.account.attendees, ...JSON.parse(fs.readFileSync(path.join(ROOT, "kb", "account.json"), "utf8")).attendees.slice(1)];
     facts = `${scenario.facts}\n${fs.readFileSync(path.join(ROOT, "kb", "facts.md"), "utf8")}`;
     demoInbox(account);
-    return { name, account, facts, kb: arizeKb, persona: scenario.persona, brain: new Brain({ apiKey: process.env.GEMINI_API_KEY, kb: arizeKb, account, facts }) };
+    return { name, account, facts, kb: arizeKb, persona: scenario.persona, teammate: scenario.teammate || null, brain: new Brain({ apiKey: process.env.GEMINI_API_KEY, kb: arizeKb, account, facts }) };
   }
   if (name === "panel") {
     const live = path.join(ROOT, "..", "pre-read.md");
@@ -106,8 +112,9 @@ function loadProfile(name) {
 }
 const profiles = { arize: loadProfile("arize"), panel: loadProfile("panel"), ...Object.fromEntries(Object.keys(SCENARIOS).map((id) => [id, loadProfile(id)])) };
 const SCENARIO_LIST = [
-  { id: "arize", title: "Technical onboarding", blurb: "Grace is the engineering lead getting LangGraph traces, masking and sessions working.", role: "Engineering Lead" },
-  ...["traces-skills", "evals-review", "prompt-monitor"].filter((id) => SCENARIOS[id]).map((id) => SCENARIOS[id]).map(({ id, title, blurb, role }) => ({ id, title, blurb, role })),
+  ...["prompt-monitor", "traces-skills", "evals-review"].filter((id) => SCENARIOS[id]).map((id) => SCENARIOS[id])
+    .map(({ id, title, blurb, role, teammate }) => ({ id, title, blurb, role, teammate: teammate ? { name: teammate.name, role: teammate.role, avatarId: teammate.avatarId } : null })),
+  { id: "arize", title: "Technical onboarding", blurb: "Grace is the engineering lead getting LangGraph traces, masking and sessions working.", role: "Engineering Lead", teammate: null },
 ];
 const voice = new LiveVoice(profiles.arize.brain.ai);
 const shares = new Map(); // share pages are addressed by unguessable ids, across sessions
@@ -172,6 +179,11 @@ class Session {
         onLevel: (rms) => this.emit({ type: "level", who: "you", rms }),
         onUtterance: (pcm) => this.handleUtterance("you", pcm, { forceAsk: this.ptt }),
       }),
+      mate: new Segmenter({
+        minThreshold: 0.008,
+        onLevel: (rms) => this.emit({ type: "level", who: "mate", rms }),
+        onUtterance: (pcm) => this.handleUtterance("mate", pcm),
+      }),
       them: new Segmenter({
         minThreshold: 0.008,
         onLevel: (rms) => {
@@ -230,7 +242,7 @@ class Session {
   recentText(n = 8) {
     return this.state.transcript
       .slice(-n)
-      .map((u) => `${u.who === "you" ? `CSM (${this.account.csm.name})` : "Customer"}: ${u.text}`)
+      .map((u) => `${u.who === "you" ? `CSM (${this.account.csm.name})` : u.who === "mate" ? `Arize teammate (${u.speaker})` : "Customer"}: ${u.text}`)
       .join("\n");
   }
   upsertCard(card) {
@@ -256,6 +268,7 @@ class Session {
   gate(on) {
     this.segments.you.setGate(on);
     this.segments.them.setGate(on);
+    this.segments.mate.setGate(on);
   }
   async whisper(text, reason) {
     if (!text) return;
@@ -308,18 +321,18 @@ class Session {
   async handleUtterance(who, pcm, { forceAsk = false, wav = null, text: typed = null, seconds: givenSeconds = null, speaker = "" } = {}) {
     const endedAt = Date.now();
     const seconds = givenSeconds ?? (typed ? typed.split(/\s+/).length / 2.5 : pcm.length / 16000);
-    this.state.talk[who] += seconds;
+    if (who !== "mate") this.state.talk[who] += seconds;
     if (process.env.CALLIE_DEBUG) console.log(new Date().toISOString(), this.id.slice(0, 6), who, `utterance ${seconds.toFixed(1)}s`);
     let heard;
     try {
-      heard = await this.brain.listen(typed ? { text: typed } : wav || pcm16ToWav(pcm), who === "you" ? "CSM" : "Customer", this.recentText());
+      heard = await this.brain.listen(typed ? { text: typed } : wav || pcm16ToWav(pcm), who === "you" ? "CSM" : who === "mate" ? "CSM" : "Customer", this.recentText());
     } catch (e) {
       this.hint(`Listening hiccup: ${e.message?.slice(0, 120)}`, "warning");
       return;
     }
     const text = (heard.text || "").trim();
     if (!text) return;
-    const speakerName = speaker || (who === "you" ? this.account.csm.name : this.account.attendees[0].name);
+    const speakerName = speaker || (who === "you" ? this.account.csm.name : who === "mate" ? this.profile.teammate?.name || "Teammate" : this.account.attendees[0].name);
     const utt = { id: nextId("u"), who, speaker: speakerName, text, tone: heard.tone || "neutral", at: endedAt, kind: heard.kind };
     this.state.transcript.push(utt);
     this.emit({ type: "transcript", utterance: utt, latencyMs: Date.now() - endedAt });
@@ -328,6 +341,8 @@ class Session {
     if (who === "you" && (forceAsk || /^\s*(hey\s+|ok\s+|okay\s+)?(callie|cali|kali|calley|kelly)\b[,.!]?/i.test(text))) kind = "ask_callie";
     if (who === "them" && kind === "claim") kind = "clarify";
     if (who === "them" && kind === "ask_callie") kind = "question";
+    // The Arize teammate: Callie checks what they claim (privately, for Jordan) and nothing else.
+    if (who === "mate") kind = kind === "claim" ? "teamclaim" : "other";
     if (who === "you" && kind === "question") kind = "other";
     const focus = (heard.focus || text).trim();
 
@@ -335,6 +350,7 @@ class Session {
     if (kind === "question" || kind === "ask_callie") jobs.push(this.answerJob(kind, focus, who, endedAt, speakerName));
     if (kind === "claim") jobs.push(this.checkJob(focus, endedAt));
     if (kind === "clarify") jobs.push(this.checkJob(focus, endedAt, { byCustomer: true, speaker: speakerName }));
+    if (kind === "teamclaim") jobs.push(this.checkJob(focus, endedAt, { teammate: true, speaker: speakerName }));
     if (who === "them") jobs.push(this.coachJob(utt));
     jobs.push(this.talkTimeCoach());
     await Promise.allSettled(jobs);
@@ -361,7 +377,7 @@ class Session {
     }
   }
 
-  async checkJob(claim, endedAt, { byCustomer = false, speaker = "" } = {}) {
+  async checkJob(claim, endedAt, { byCustomer = false, teammate = false, speaker = "" } = {}) {
     try {
       const r = await this.brain.check(claim, { recent: this.recentText(), byCustomer });
       if (r.verdict !== "contradicted") return;
@@ -377,6 +393,7 @@ class Session {
         type: "check",
         status: "ready",
         clarify: byCustomer,
+        teammate,
         speaker,
         claim,
         correction: r.correction,
@@ -445,6 +462,7 @@ class Session {
     if (!this.mode) return;
     this.segments.you.flush();
     this.segments.them.flush();
+    this.segments.mate.flush();
     this.persona?.stop();
     this.persona = null;
     if (teeOwner === this) await stopCapture();
@@ -478,27 +496,41 @@ class Session {
   }
 
   // -------------------------------------------------------------- video call (LiveKit + Spatius)
-  async callToken() {
-    const roomName = `cartwell-${this.id.slice(0, 6)}-${Date.now().toString(36)}`;
-    const identity = `jordan-${crypto.randomBytes(3).toString("hex")}`;
+  // Each AI person gets their own room (a Spatius avatar publishes fixed track names, so two can't
+  // share one); the browser joins both and passes words between them. The token asks LiveKit to
+  // dispatch the agent, with that person's persona, voice and face in the job metadata.
+  async roomToken(roomName, identity, meta) {
     const at = new AccessToken(process.env.LIVEKIT_API_KEY, process.env.LIVEKIT_API_SECRET, { identity, name: this.account.csm.name, ttl: "1h" });
     at.addGrant({ roomJoin: true, room: roomName, canPublish: true, canSubscribe: true, canPublishData: true });
-    // Grace's agent joins on its own: the token asks LiveKit to dispatch it to this room, with
-    // her persona and face in the job metadata.
-    const metadata = JSON.stringify({ prompt: this.profile.persona || PRIYA_PROMPT, avatarId: AVATAR_ID, voice: process.env.CALLIE_PERSONA_VOICE || "Aoede", model: process.env.CALLIE_PERSONA_MODEL || "gemini-3.8-live" });
-    at.roomConfig = new RoomConfiguration({ agents: [new RoomAgentDispatch({ agentName: AGENT_NAME, metadata })] });
-    this.call = { roomName, identity, startedAt: Date.now() };
-    return { url: process.env.LIVEKIT_URL, token: await at.toJwt(), roomName, identity, avatarId: AVATAR_ID, appId: process.env.SPATIUS_APP_ID };
+    at.roomConfig = new RoomConfiguration({ agents: [new RoomAgentDispatch({ agentName: AGENT_NAME, metadata: JSON.stringify({ model: process.env.CALLIE_PERSONA_MODEL || "gemini-3.8-live", ...meta }) })] });
+    return { url: process.env.LIVEKIT_URL, token: await at.toJwt(), roomName, identity };
+  }
+  async callToken() {
+    const base = `cartwell-${this.id.slice(0, 6)}-${Date.now().toString(36)}`;
+    const identity = `jordan-${crypto.randomBytes(3).toString("hex")}`;
+    const customer = this.account.attendees[0];
+    const main = await this.roomToken(base, identity, {
+      prompt: this.profile.persona || PRIYA_PROMPT, avatarId: AVATAR_ID, voice: process.env.CALLIE_PERSONA_VOICE || "Aoede",
+      avatarIdentity: "avatar-customer", avatarName: customer.name,
+    });
+    const tm = this.profile.teammate;
+    const teammate = tm ? {
+      ...(await this.roomToken(`${base}-se`, identity, { prompt: tm.persona, avatarId: tm.avatarId, voice: tm.voice, avatarIdentity: "avatar-teammate", avatarName: tm.name, textOnly: true, greet: false })),
+      name: tm.name, role: tm.role, avatarId: tm.avatarId,
+    } : null;
+    this.call = { rooms: [main.roomName, teammate?.roomName].filter(Boolean), identity, startedAt: Date.now() };
+    return { ...main, avatarId: AVATAR_ID, appId: process.env.SPATIUS_APP_ID, customer: { name: customer.name, role: customer.role }, teammate };
   }
 
   // Hang up for everyone: deleting the room ends Grace's job right away instead of after
   // LiveKit's empty-room timeout, so no voice or avatar minutes run on.
   endRoom() {
-    const roomName = this.call?.roomName;
+    const rooms = this.call?.rooms || [];
     this.call = null;
-    if (!roomName || !liveCallReady) return;
+    if (!rooms.length || !liveCallReady) return;
     const host = process.env.LIVEKIT_URL.replace(/^wss?:\/\//, "https://");
-    new RoomServiceClient(host, process.env.LIVEKIT_API_KEY, process.env.LIVEKIT_API_SECRET).deleteRoom(roomName).catch(() => {});
+    const svc = new RoomServiceClient(host, process.env.LIVEKIT_API_KEY, process.env.LIVEKIT_API_SECRET);
+    for (const r of rooms) svc.deleteRoom(r).catch(() => {});
   }
 
   // -------------------------------------------------------------- audio frames from the browser
@@ -506,8 +538,8 @@ class Session {
     // Byte 0 says which side of the call the frame is: 0 = the CSM's mic, 1 = the customer.
     const channel = b[0];
     const pcm = pcmFromBuffer(b.subarray(1));
-    if (channel === 1) {
-      if (this.mode === "call") this.segments.them.push(pcm);
+    if (channel === 1 || channel === 2) {
+      if (this.mode === "call") this.segments[channel === 1 ? "them" : "mate"].push(pcm);
       return;
     }
     if (this.mode === "call" || this.mode === "capture") this.segments.you.push(pcm);
@@ -718,9 +750,10 @@ function authorized(req) {
   return got.length === want.length && crypto.timingSafeEqual(got, want);
 }
 const attempts = new Map(); // ip -> {n, since}
+const callStarts = new Map(); // ip -> {n, since}: video calls started
 function loginPage(error = "") {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
-<title>Callie Live · Calendly Labs concept</title>
+<title>Callie Live Assistant · Calendly Labs concept</title>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#fcfbf8;--ink:#071a31;--ink2:#566476;--line:#e4e6e9;--lime:#dbee9f;--red:#c9353b}
@@ -735,7 +768,7 @@ button{margin-top:14px;width:100%;font:500 15px/1 Geist,system-ui,sans-serif;pad
 .err{color:var(--red);font-size:13px;margin-top:10px}.foot{margin-top:18px;font-size:12px;color:var(--ink2)}
 </style></head><body><form class="card" method="post" action="/login">
 <div class="mark"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b5410" stroke-width="2" stroke-linecap="round"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"/></svg></div>
-<h1>Callie Live</h1><p>A Calendly Labs concept prototype by Leland Char. Enter the access code you were given.</p>
+<h1>Callie Live Assistant</h1><p>A Calendly Labs concept prototype by Leland Char. Enter the access code you were given.</p>
 <label for="code">Access code</label><input id="code" name="code" type="password" autocomplete="current-password" autofocus required>
 ${error ? `<div class="err">${error}</div>` : ""}
 <button type="submit">Continue</button>
@@ -855,11 +888,40 @@ const server = http.createServer(async (req, res) => {
       return res.end();
     }
 
+    if (url.pathname === "/api/readme") {
+      const sendReadme = (extra = {}) => {
+        res.writeHead(200, { ...BASE_HEADERS, "content-type": MIME[".html"], "cache-control": "no-store", ...extra });
+        res.end(fs.readFileSync(README_FILE, "utf8"));
+      };
+      if (req.method !== "POST") { if (readmeUnlocked(req)) return sendReadme(); res.writeHead(204, { ...BASE_HEADERS, "cache-control": "no-store" }); return res.end(); }
+      const ip = String(req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim();
+      const a = readmeTries.get(ip) || { n: 0, since: Date.now() };
+      if (Date.now() - a.since > 10 * 60 * 1000) { a.n = 0; a.since = Date.now(); }
+      a.n++;
+      readmeTries.set(ip, a);
+      let given = "";
+      try { given = String(JSON.parse(await readBody(req, 2048)).password || ""); } catch {}
+      const A = Buffer.from(given), B = Buffer.from(README_PASSWORD);
+      if (!README_PASSWORD || a.n > 10 || A.length !== B.length || !crypto.timingSafeEqual(A, B)) {
+        return sendJson(res, 401, { error: a.n > 10 ? "Too many tries. Wait a few minutes, then try again." : "That password didn’t work." });
+      }
+      readmeTries.delete(ip);
+      return sendReadme({ "set-cookie": `callie_readme=${readmeCookie}; Path=/; HttpOnly; SameSite=Lax; Max-Age=2592000${HOSTED ? "; Secure" : ""}` });
+    }
     if (url.pathname === "/api/config") {
       return sendJson(res, 200, { ...caps, spatiusAppId: process.env.SPATIUS_APP_ID || "", avatarId: AVATAR_ID, scenarios: SCENARIO_LIST });
     }
     if (url.pathname === "/api/call" && req.method === "POST") {
       if (!liveCallReady) return sendJson(res, 503, { error: "The video call isn't configured on this server (LiveKit or Spatius keys are missing)." });
+      // The site is open, and every call runs paid voice and avatar sessions: a few calls per
+      // visitor per 10 minutes, and a handful at once.
+      const ip = String(req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim();
+      const r = callStarts.get(ip) || { n: 0, since: Date.now() };
+      if (Date.now() - r.since > 10 * 60 * 1000) { r.n = 0; r.since = Date.now(); }
+      const live = [...sessions.values()].filter((s) => s.call && s.mode === "call").length;
+      if (HOSTED && (r.n >= 8 || live >= 6)) return sendJson(res, 429, { error: "Lots of calls are running right now. Wait a few minutes, then try again, or watch the recording." });
+      r.n++;
+      callStarts.set(ip, r);
       const { sid } = JSON.parse((await readBody(req)) || "{}");
       const session = sessions.get(sid);
       if (!session) return sendJson(res, 404, { error: "Your session expired. Reload the page." });
@@ -925,7 +987,7 @@ wss.on("connection", (ws, req) => {
 });
 
 server.listen(PORT, HOST, () => {
-  console.log(`Callie Live is running at http://${HOST === "0.0.0.0" ? "localhost" : HOST}:${PORT}  (knowledge base: ${profiles.arize.kb.chunks.length} doc passages; video call ${liveCallReady ? "ready" : "not configured"}; ${ACCESS_CODE ? "access code on" : "open access"})`);
+  console.log(`Callie Live Assistant is running at http://${HOST === "0.0.0.0" ? "localhost" : HOST}:${PORT}  (knowledge base: ${profiles.arize.kb.chunks.length} doc passages; video call ${liveCallReady ? "ready" : "not configured"}; ${ACCESS_CODE ? "access code on" : "open access"})`);
   // Warm the models so the first real question isn't slowed by a cold start.
   const ai = profiles.arize.brain.ai;
   profiles.arize.brain.embed("warm up").catch(() => {});
