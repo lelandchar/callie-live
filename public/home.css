@@ -577,3 +577,15 @@ html.anim .roadmap.in::before, html.anim .roadmap:has(li.in)::before { transform
 }
 /* final call to action: readable white text on a deeper blue */
 .h-final-card { background: linear-gradient(160deg, #1f5fe0 0%, #0b3fae 55%, #0a2c78 100%); }
+
+/* phones: say that wide tables scroll sideways; keep the example equation on one line */
+.ns-eq span { white-space: nowrap; }
+@media (max-width: 760px) {
+  .table-wrap::before { content: "Swipe sideways to see the whole table →"; display: block; position: sticky; left: 0; padding: 10px 14px 0; font-size: 12.5px; color: var(--c-ink-3); }
+}
+/* short laptop screens: a tighter hero so the recording starts above the fold */
+@media (max-height: 820px) and (min-width: 761px) {
+  .h-hero.centered { padding-top: 36px; gap: 26px; }
+  .h-hero.centered h1 { font-size: clamp(40px, 5.2vw, 60px); margin: 10px 0 14px; }
+  .h-hero.centered .h-lede { font-size: 17px; }
+}

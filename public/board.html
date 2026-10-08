@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" />
   <title>Whiteboard · Callie Live Assistant</title>
   <link rel="stylesheet" href="/theme.css" />
   <link rel="stylesheet" href="/app.css" />
@@ -15,6 +16,8 @@
     .board { position: fixed; inset: 58px 18px 18px; margin: 0; border-radius: 22px; box-shadow: 0 0 0 1px rgba(7, 26, 49, 0.06), var(--sh-card); }
     .board-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); align-items: start; gap: 16px; padding: 22px; }
     .bitem.flow, .bitem.code { grid-column: 1 / -1; }
+    .bitem.flow { display: block; }
+    .flow .fstep { display: flex; align-items: flex-start; gap: 6px; }
     .flow .node { min-width: 130px; max-width: 220px; }
     .flow .node b { font-size: 16px; padding: 14px 16px; }
     .flow .node span { font-size: 13px; }
@@ -38,7 +41,7 @@
       const title = b.title ? `<span class="b-title">${esc(b.title)}</span>` : "<span></span>";
       if (b.type === "note" || b.type === "text") return `<div class="b-head">${title}</div><div class="b-text">${rich(b.text)}</div>`;
       if (b.type === "code") return `<div class="b-head">${title}<span class="lang">${esc(b.language)}</span></div><pre>${esc(b.code)}</pre>`;
-      if (b.type === "flow") return `${b.title ? `<div class="b-head">${title}</div>` : ""}<div class="flow">${b.steps.map((s, i) => { const [l, c] = s.split(/\s+\|\s+/); return `${i ? `<span class="arrow"><svg viewBox="0 0 30 18"><use href="#i-flow-arrow" width="30" height="18" /></svg></span>` : ""}<span class="node"><b>${esc(l)}</b>${c ? `<span>${esc(c)}</span>` : ""}</span>`; }).join("")}</div>`;
+      if (b.type === "flow") return `${b.title ? `<div class="b-head">${title}</div>` : ""}<div class="flow">${b.steps.map((s, i) => { const [l, c] = s.split(/\s+\|\s+/); return `<span class="fstep">${i ? `<span class="arrow"><svg viewBox="0 0 30 18"><use href="#i-flow-arrow" width="30" height="18" /></svg></span>` : ""}<span class="node"><b>${esc(l)}</b>${c ? `<span>${esc(c)}</span>` : ""}</span></span>`; }).join("")}</div>`;
       if (b.type === "checklist") return `<div class="b-head">${title}</div><ul>${b.items.map((s) => `<li><input type="checkbox" /><span>${rich(s)}</span></li>`).join("")}</ul>`;
       return "";
     }

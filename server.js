@@ -639,6 +639,8 @@ class Session {
         if (caps.simulate && msg.text) spawn("say", ["-v", msg.voice || "Samantha", String(msg.text).slice(0, 400)], { stdio: "ignore" });
         return;
       case "profile":
+        // The interview-panel profile (a draft pre-read naming the panel) stays off the public site.
+        if (HOSTED && msg.name === "panel") return this.hello();
         this.profile = profiles[msg.name] || profiles.arize;
         this.state = Session.freshState();
         return this.hello();
@@ -754,6 +756,7 @@ const attempts = new Map(); // ip -> {n, since}
 const callStarts = new Map(); // ip -> {n, since}: video calls started
 function loginPage(error = "") {
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/favicon.svg" />
 <title>Callie Live Assistant · Calendly Labs concept</title>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
@@ -788,6 +791,7 @@ function renderShare(page) {
   const steps = (page.steps || []).map((s) => `<li>${esc(s)}</li>`).join("");
   const links = (page.links || []).map((l) => `<a class="link" href="${esc(l.url)}" target="_blank" rel="noopener">${esc(l.title)}<span>↗</span></a>`).join("");
   return `<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow">
+<link rel="icon" href="/favicon.svg" />
 <title>${esc(page.title)}</title>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono&display=swap" rel="stylesheet">
 <style>
@@ -866,6 +870,12 @@ const server = http.createServer(async (req, res) => {
   try {
     if (url.pathname === "/health") return sendJson(res, 200, { ok: true });
     if (url.pathname === "/robots.txt") { res.writeHead(200, { ...BASE_HEADERS, "content-type": "text/plain" }); return res.end("User-agent: *\nDisallow: /\n"); }
+    if (url.pathname === "/favicon.ico") {
+      res.writeHead(200, { ...BASE_HEADERS, "content-type": "image/svg+xml", "cache-control": "public, max-age=86400" });
+      return res.end(fs.readFileSync(path.join(PUBLIC, "favicon.svg")));
+    }
+    // With no access code set (the site is open), the old login page just sends you home.
+    if (url.pathname === "/login" && !ACCESS_CODE) { res.writeHead(303, { ...BASE_HEADERS, location: "/" }); return res.end(); }
     if (url.pathname === "/login") {
       if (req.method === "POST") {
         const ip = String(req.headers["x-forwarded-for"] || req.socket.remoteAddress || "").split(",")[0].trim();

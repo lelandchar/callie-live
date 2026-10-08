@@ -551,3 +551,11 @@ aside.callie:has(#boardCard:not([hidden])) .feed { flex: 0 0 auto; max-height: 7
   aside.callie, .feed, .tl, .board-items, .bitem { min-width: 0; max-width: 100%; }
   .bitem.code pre { max-width: 100%; }
 }
+
+/* whiteboard flows: the item is a block (title above), each arrow leads the step it points to */
+.bitem.flow { display: block; }
+.flow .fstep { display: flex; align-items: flex-start; gap: 6px; }
+/* the ⋯ menu: labels on one line, selects wide enough to read */
+.menu { width: 330px; }
+.menu .row > span:first-child { white-space: nowrap; }
+.menu select { max-width: 170px; }

@@ -377,6 +377,7 @@ async function joinCall({ text = ui.textMode, retry = false } = {}) {
     setTimeout(() => { if (ui.inCall && call === thisCall && !heard) graceGone("silent"); }, 16000);
   } catch (e) {
     ui.inCall = false;
+    closeDevices();
     setLive(false);
     connecting("");
     overlay(true);
@@ -739,7 +740,7 @@ function applyScenario(id) {
   $("#scenarioSel").value = s.id;
   $("#scenarioBlurb").textContent = s.blurb;
   $("#nameRole").textContent = s.role;
-  $("#whoRole").textContent = `${s.role}, Cartwell · booked via Calendly`;
+  $("#whoRole").textContent = `Cartwell · ${s.role} · booked via Calendly`;
   $("#mateTile").hidden = !s.teammate;
   if (s.teammate) {
     $("#mateLabel").textContent = `${s.teammate.name} · Arize`;
@@ -1098,7 +1099,8 @@ function boardItemHtml(b) {
   if (b.type === "flow") {
     const nodes = b.steps.map((s, i) => {
       const [label, cap] = s.split(/\s+\|\s+/);
-      return `${i ? `<span class="arrow"><svg viewBox="0 0 30 18"><use href="#i-flow-arrow" width="30" height="18" /></svg></span>` : ""}<span class="node" style="animation-delay:${i * 0.12}s"><b>${esc(label)}</b>${cap ? `<span>${esc(cap)}</span>` : ""}</span>`;
+      const node = `<span class="node" style="animation-delay:${i * 0.12}s"><b>${esc(label)}</b>${cap ? `<span>${esc(cap)}</span>` : ""}</span>`;
+      return `<span class="fstep">${i ? `<span class="arrow"><svg viewBox="0 0 30 18"><use href="#i-flow-arrow" width="30" height="18" /></svg></span>` : ""}${node}</span>`;
     }).join("");
     return `${b.title ? `<div class="b-head">${title}${who}</div>` : ""}<div class="flow">${nodes}</div>`;
   }
@@ -1298,7 +1300,7 @@ async function setupRecorded() {
     $("#mateTile").hidden = false;
     $("#mateLabel").textContent = `${script.cast.csm.name} · ${script.cast.csm.org}`;
     $("#askMateBtn").hidden = true;
-    $("#whoRole").textContent = `${script.cast.customer.role}, ${script.cast.customer.org} · booked via Calendly`;
+    $("#whoRole").textContent = `${script.cast.customer.org} · ${script.cast.customer.role} · booked via Calendly`;
     $("#nameRole").textContent = script.cast.customer.role;
     mountMate(script.cast.csm.avatarId); // Julian's avatar is ready (idle) before the call starts
   }
@@ -1611,7 +1613,7 @@ $("#joinBtn").onclick = () => joinCall({ text: false });
 $("#joinTextBtn").onclick = () => joinCall({ text: true });
 
 // ------------------------------------------------------------------ boot
-window.callieDebug = { get view() { return view; }, get call() { return call; }, get media() { return media; }, ui, rec, sendLatest: () => { const c = sendable(); if (c) requestEmail(c.id); return !!c; }, askMate: (text) => { remember("you", text); return askMate(text); } };
+window.callieDebug = { get view() { return view; }, get call() { return call; }, get media() { return media; }, ui, rec, sendLatest: () => { const c = sendable(); if (c) requestEmail(c.id); return !!c; }, askMate: (text) => { remember("you", text); return askMate(text); }, upsertCard, addBoardItem };
 renderControls();
 if (OPEN_CALL) {
   showCall();
