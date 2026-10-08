@@ -107,7 +107,7 @@ function loadProfile(name) {
 const profiles = { arize: loadProfile("arize"), panel: loadProfile("panel"), ...Object.fromEntries(Object.keys(SCENARIOS).map((id) => [id, loadProfile(id)])) };
 const SCENARIO_LIST = [
   { id: "arize", title: "Technical onboarding", blurb: "Grace is the engineering lead getting LangGraph traces, masking and sessions working.", role: "Engineering Lead" },
-  ...Object.values(SCENARIOS).map(({ id, title, blurb, role }) => ({ id, title, blurb, role })),
+  ...["traces-skills", "evals-review", "prompt-monitor"].filter((id) => SCENARIOS[id]).map((id) => SCENARIOS[id]).map(({ id, title, blurb, role }) => ({ id, title, blurb, role })),
 ];
 const voice = new LiveVoice(profiles.arize.brain.ai);
 const shares = new Map(); // share pages are addressed by unguessable ids, across sessions

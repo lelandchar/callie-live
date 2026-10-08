@@ -3,6 +3,8 @@
    Newsreader stands in for the "Wulkan Text" serif used on section headlines. */
 @import url("https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap");
 
+*, *::before, *::after { box-sizing: border-box; }
+
 :root {
   /* surfaces */
   --c-bg: #fcfbf8;

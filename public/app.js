@@ -115,6 +115,7 @@ function applyCaps() {
 // ------------------------------------------------------------------ screens
 const html = document.documentElement;
 function showCall() {
+  $("#demoVideo")?.pause();
   $("#home").hidden = true;
   $("#app").hidden = false;
   html.classList.add("in-call");
@@ -1291,6 +1292,38 @@ function stopRecorded() {
 }
 
 // ------------------------------------------------------------------ home page
+// The Read me tab holds the presenter's notes: hidden on the hosted copy unless this browser
+// has opened /?presenter once.
+let presenter = false;
+try {
+  if (params.has("presenter")) localStorage.setItem("callie-presenter", "1");
+  presenter = localStorage.getItem("callie-presenter") === "1";
+} catch {}
+if (config.hosted && !presenter) $("#readmeTab").hidden = true;
+
+// The recorded demo: when it was filmed, and chapters to jump to.
+const video = $("#demoVideo");
+const fmt = (sec) => `${Math.floor(sec / 60)}:${String(Math.floor(sec % 60)).padStart(2, "0")}`;
+fetch("/media/callie-live-demo.json").then((r) => (r.ok ? r.json() : null)).then((meta) => {
+  if (!meta) return;
+  const when = new Date(meta.recordedAt).toLocaleString([], { month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit", timeZoneName: "short" });
+  $("#recMeta").textContent = `Recorded ${when} · ${fmt(meta.seconds)} · unedited screen and sound from the app`;
+  $("#chapterChips").innerHTML = meta.chapters.map((c, i) => `<button type="button" data-i="${i}">${esc(c.title.replace(/^\d+ · /, ""))}<span>${fmt(c.t)}</span></button>`).join("");
+  $$("#chapterChips button").forEach((b) => (b.onclick = () => { video.currentTime = meta.chapters[Number(b.dataset.i)].t; video.play().catch(() => {}); }));
+  video.addEventListener("timeupdate", () => {
+    const i = meta.chapters.reduce((k, c, j) => (video.currentTime >= c.t ? j : k), 0);
+    $$("#chapterChips button").forEach((b, j) => b.classList.toggle("on", j === i));
+  });
+}).catch(() => {});
+const playRecording = (e) => {
+  e?.preventDefault();
+  $$(".h-tab").find((t) => t.dataset.tab === "overview")?.click();
+  $("#watch").scrollIntoView({ behavior: "smooth", block: "center" });
+  video.play().catch(() => {});
+};
+$$("[data-play]").forEach((b) => (b.onclick = playRecording));
+$$("[data-watch]").forEach((a) => (a.onclick = (e) => { e.preventDefault(); $$(".h-tab").find((t) => t.dataset.tab === "overview")?.click(); $("#watch").scrollIntoView({ behavior: "smooth", block: "center" }); }));
+
 $$(".h-tab").forEach((t) => (t.onclick = async () => {
   $$(".h-tab").forEach((x) => x.classList.toggle("is-active", x === t));
   $$(".h-view").forEach((v) => (v.hidden = v.dataset.view !== t.dataset.tab));
