@@ -30,20 +30,27 @@
       "who": "customer",
       "chapter": "Testing a prompt",
       "text": "Exactly. The assistant is fine most days, but it rambles, and sometimes it recommends products that are out of stock. So, first question: how do we test a new prompt without shipping it?",
-      "pauseAfter": 1800
+      "pauseAfter": 500
+    },
+    {
+      "id": "h02",
+      "who": "csm",
+      "text": "Good question. Give me a second, let me pull that up in the docs.",
+      "pauseAfter": 300
     },
     {
       "id": "c03",
       "who": "csm",
-      "text": "Good question. You don't ship anything to test it. You open the Prompt Playground in Arize, paste in the new prompt, and run it against a dataset of real conversations. You see the old and the new answers side by side.",
-      "pauseAfter": 700
+      "text": "You don't ship anything to test it. You open the Prompt Playground in Arize, paste in the new prompt, and run it against a dataset of real conversations. You see the old and the new answers side by side.",
+      "pauseAfter": 700,
+      "waitFor": "answer"
     },
     {
       "id": "c04",
       "who": "customer",
       "chapter": "No staging needed",
       "text": "Oh, interesting. I thought the only safe way to test a prompt was to deploy every version to staging first.",
-      "pauseAfter": 1800
+      "pauseAfter": 500
     },
     {
       "id": "c05",
@@ -56,52 +63,74 @@
       "who": "customer",
       "chapter": "Where test data comes from",
       "text": "That's a relief. Where would the test conversations come from, though?",
-      "pauseAfter": 1800
+      "pauseAfter": 500
+    },
+    {
+      "id": "h06",
+      "who": "csm",
+      "text": "Let me check the documentation on that, one second.",
+      "pauseAfter": 300
     },
     {
       "id": "c07",
       "who": "csm",
       "text": "From your own traces. You filter for the conversations that went wrong, like the out of stock recommendations, add them to a dataset, and mix in some typical good ones. That way you're testing against the problems you actually have.",
-      "pauseAfter": 700
+      "pauseAfter": 700,
+      "waitFor": "answer"
     },
     {
       "id": "c08",
       "who": "customer",
       "chapter": "A cheaper model",
       "text": "Makes sense. And could we try a cheaper model while we're at it?",
-      "pauseAfter": 1800
+      "pauseAfter": 500
+    },
+    {
+      "id": "h08",
+      "who": "csm",
+      "text": "Good one. Let me look that up.",
+      "pauseAfter": 300
     },
     {
       "id": "c09",
       "who": "csm",
       "text": "Yes. Compare Models runs the same prompt across different models side by side, so you see quality and cost together before you switch anything.",
-      "pauseAfter": 900
+      "pauseAfter": 900,
+      "waitFor": "answer"
     },
     {
       "id": "c10",
       "who": "customer",
       "chapter": "Nervous about Black Friday",
       "text": "Okay. Honestly, I'm a little nervous. If checkout breaks the week of Black Friday, that's on me.",
-      "pauseAfter": 2400
+      "pauseAfter": 600
     },
     {
       "id": "c11",
       "who": "csm",
       "text": "That's completely fair, and it's exactly why you'd run it as an experiment first and only ship the winner. Then, after launch, you put monitors on what matters: latency, cost per conversation, and an eval for wrong product recommendations.",
-      "pauseAfter": 700
+      "pauseAfter": 700,
+      "waitFor": "coach"
     },
     {
       "id": "c12",
       "who": "customer",
       "chapter": "Who gets alerted",
       "text": "And who gets alerted if something goes wrong?",
-      "pauseAfter": 1800
+      "pauseAfter": 500
+    },
+    {
+      "id": "h12",
+      "who": "csm",
+      "text": "Let me double-check that in the docs.",
+      "pauseAfter": 300
     },
     {
       "id": "c13",
       "who": "csm",
       "text": "Whoever you choose. Alerts can go to email, Slack, PagerDuty or a webhook, and you can set a fixed threshold or let Arize pick one automatically from your history.",
-      "pauseAfter": 700
+      "pauseAfter": 700,
+      "waitFor": "answer"
     },
     {
       "id": "c14",
@@ -114,26 +143,34 @@
       "id": "c15",
       "who": "csm",
       "text": "Sure. Your Pro plan keeps a full year of traces, so last November is still in there.",
-      "pauseAfter": 6500
+      "pauseAfter": 400
     },
     {
       "id": "c16",
       "who": "csm",
       "text": "Actually, let me correct myself. Pro keeps thirty days of traces, not a year, so last November is gone. Longer retention is an Enterprise option. For this season, let's save the bad holiday conversations into a dataset as we find them.",
-      "pauseAfter": 700
+      "pauseAfter": 700,
+      "waitFor": "check"
     },
     {
       "id": "c17",
       "who": "customer",
       "chapter": "One page for the VP",
       "text": "Thanks for catching that. It actually changes our plan. My VP also wants one page to look at. What would you put on it?",
-      "pauseAfter": 1800
+      "pauseAfter": 500
+    },
+    {
+      "id": "h17",
+      "who": "csm",
+      "text": "Give me a second, let me find the best way to set that up.",
+      "pauseAfter": 300
     },
     {
       "id": "c18",
       "who": "csm",
       "text": "A dashboard. Start from a template, then add widgets like p95 latency by model, token cost, and your eval scores over time. It updates on its own, so your VP never has to ask.",
-      "pauseAfter": 700
+      "pauseAfter": 700,
+      "waitFor": "answer"
     },
     {
       "id": "c19",
@@ -166,7 +203,7 @@
       "id": "c23",
       "who": "customer",
       "text": "Sounds good. Talk then!",
-      "pauseAfter": 2500
+      "pauseAfter": 500
     }
   ]
 }

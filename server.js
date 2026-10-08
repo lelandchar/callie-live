@@ -163,7 +163,7 @@ class Session {
     this.clients = new Set();
     this.profile = profiles.arize;
     this.state = Session.freshState();
-    this.settings = { whisper: "corrections", coach: true };
+    this.settings = { whisper: "off", coach: true }; // the whisper is opt-in (⋯ menu)
     this.mode = null; // null | "call" | "capture" | "demo" | "roleplay"
     this.demo = { mode: "inject", line: null };
     this.persona = null;
@@ -341,7 +341,7 @@ class Session {
     if (who === "you" && (forceAsk || /^\s*(hey\s+|ok\s+|okay\s+)?(callie|cali|kali|calley|kelly)\b[,.!]?/i.test(text))) kind = "ask_callie";
     if (who === "them" && kind === "claim") kind = "clarify";
     if (who === "them" && kind === "ask_callie") kind = "question";
-    // The Arize teammate: Callie checks what they claim (privately, for Jordan) and nothing else.
+    // An Arize teammate: Callie checks what they claim (privately, for the CSM) and nothing else.
     if (who === "mate") kind = kind === "claim" ? "teamclaim" : "other";
     if (who === "you" && kind === "question") kind = "other";
     const focus = (heard.focus || text).trim();
@@ -385,7 +385,12 @@ class Session {
       const now = Date.now();
       const s = this.state;
       s.recentChecks = s.recentChecks.filter((c) => now - c.at < 120000);
-      const repeat = s.recentChecks.some((c) => [...key].filter((w) => c.key.has(w)).length / Math.max(1, Math.min(key.size, c.key.size)) > 0.6);
+      // One correction per mistake: a claim split across two breaths gets checked twice, so a
+      // second correction on the same topic within 20 s (or a near-copy within 2 min) is dropped.
+      const repeat = s.recentChecks.some((c) => {
+        const overlap = [...key].filter((w) => c.key.has(w)).length / Math.max(1, Math.min(key.size, c.key.size));
+        return overlap > 0.6 || (now - c.at < 20000 && overlap > 0.3);
+      });
       if (repeat) return;
       s.recentChecks.push({ key, at: now });
       const card = {
@@ -507,11 +512,12 @@ class Session {
   }
   async callToken() {
     const base = `cartwell-${this.id.slice(0, 6)}-${Date.now().toString(36)}`;
-    const identity = `jordan-${crypto.randomBytes(3).toString("hex")}`;
+    const identity = `arize-${crypto.randomBytes(3).toString("hex")}`;
     const customer = this.account.attendees[0];
     const main = await this.roomToken(base, identity, {
       prompt: this.profile.persona || PRIYA_PROMPT, avatarId: AVATAR_ID, voice: process.env.CALLIE_PERSONA_VOICE || "Aoede",
       avatarIdentity: "avatar-customer", avatarName: customer.name,
+      greeting: `The call has started. Thank ${this.account.csm.name.split(" ")[0]} for making the time in one short sentence, then ask your first question.`,
     });
     const tm = this.profile.teammate;
     const teammate = tm ? {

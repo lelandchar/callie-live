@@ -3,7 +3,7 @@
     "seconds": 6.45
   },
   "c03": {
-    "seconds": 12.65
+    "seconds": 11.33
   },
   "c01": {
     "seconds": 10.26
@@ -67,5 +67,20 @@
   },
   "c23": {
     "seconds": 1.36
+  },
+  "h08": {
+    "seconds": 2.44
+  },
+  "h06": {
+    "seconds": 2.92
+  },
+  "h02": {
+    "seconds": 3.46
+  },
+  "h12": {
+    "seconds": 1.8
+  },
+  "h17": {
+    "seconds": 4
   }
 }

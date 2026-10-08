@@ -24,7 +24,7 @@
     }
   ],
   "csm": {
-    "name": "Jordan Reyes",
+    "name": "Leland Char",
     "title": "Customer Success Manager at Arize"
   },
   "lastCall": "Sept 24 kickoff. Agreed to use OpenInference auto-instrumentation for LangGraph. Grace worried that shoppers' addresses, emails and order numbers would show up in traces.",

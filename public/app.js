@@ -19,6 +19,8 @@ const REC = params.has("rec");
 const recLog = (e) => { if (REC) (window.__recEvents ??= []).push({ at: Date.now(), ...e }); };
 
 const ui = {
+  thread: [], // the panel's messages, in order: { id } for a card, { key, text } for a note like "Emailed Grace"
+  boards: new Map(), // card id → the visuals Callie drew for it
   account: null,
   caps: {},
   cards: new Map(),
@@ -87,7 +89,7 @@ function onMessage(m) {
     case "transcript":
       ui.transcript.push(m.utterance);
       refreshTranscript();
-      // Spoken lines: if Jordan addressed the teammate by name, pass it on.
+      // Spoken lines: if the CSM addressed a teammate by name, pass it on.
       if (ui.inCall && !ui.textMode && m.utterance.who === "you" && !/^\(typed/.test(m.utterance.text)) {
         remember("you", m.utterance.text);
         if (addressesMate(m.utterance.text)) askMate(m.utterance.text);
@@ -447,7 +449,7 @@ function mateLevel(buf) {
     tile._t = setTimeout(() => tile.classList.remove("speaking"), 450);
   }
 }
-const NAMES = { you: "Jordan", grace: "Grace", julian: "Julian" };
+const NAMES = { you: "Leland", grace: "Grace", julian: "Julian" };
 function remember(who, text) {
   if (!text?.trim()) return;
   if (REC) (window.__convo ??= []).push({ who, text: text.trim(), at: Date.now() });
@@ -495,7 +497,7 @@ function speakingFromLevel(buf) {
 function setTextMode(on) {
   ui.textMode = on;
   $("#textModeToggle").checked = on;
-  $("#chatDock").hidden = !on;
+  $("#chatDock").hidden = true; // captions carry the words in text mode too
   if (on) clearCaptions();
   if (media.pub) media.pub.enabled = !on && !ui.muted;
   $("#ctlLabel").textContent = on ? "Text chat" : "";
@@ -511,7 +513,7 @@ function chatLine(who, text, id, live = false) {
   if (!el) {
     el = document.createElement("div");
     el.className = `chat-msg ${who}`;
-    el.innerHTML = `<b>${who === "you" ? "You (Jordan)" : who === "julian" ? "Julian · Arize" : "Grace"}</b><span></span>`;
+    el.innerHTML = `<b>${who === "you" ? "You (Leland)" : who === "julian" ? "Julian · Arize" : "Grace"}</b><span></span>`;
     log.append(el);
     if (id) chatSegs.set(id, el);
     while (log.children.length > 30) log.firstElementChild.remove();
@@ -521,21 +523,32 @@ function chatLine(who, text, id, live = false) {
   window.__lastChatAt = Date.now();
   log.scrollTop = log.scrollHeight;
 }
-$("#chatForm").onsubmit = async (e) => {
-  e.preventDefault();
-  const input = $("#chatInput");
+// Typed lines go to Grace (or to Julian when they're addressed to him), and Callie hears them too.
+async function sendTyped(input) {
   const text = input.value.trim();
   if (!text) return;
   if (!call) return addHint("Join the call first, then type to Grace.");
   input.value = "";
   chatLine("you", text);
+  showCaption("You", text, false);
   remember("you", text);
   if (addressesMate(text)) askMate(text);
   else {
     try { await call.sendText(text); } catch { addHint("Couldn't reach Grace. Check your connection.", "warning"); }
   }
   send({ type: "typed", text });
-};
+}
+$("#chatForm").onsubmit = (e) => { e.preventDefault(); sendTyped($("#chatInput")); };
+$("#demoReply").onsubmit = (e) => { e.preventDefault(); sendTyped($("#demoReplyInput")); };
+// Copy puts Callie's answer on the clipboard and in the reply box, ready to send to Grace.
+function useAnswer(c) {
+  const text = twoSentences(c.answer) || c.short || "";
+  navigator.clipboard?.writeText(text).catch(() => {});
+  const box = $("#demoReplyInput");
+  box.value = text;
+  box.focus();
+  addHint("Copied. It’s in the reply box: press Enter to send it to Grace.");
+}
 $("#textModeToggle").onchange = async (e) => {
   const on = e.target.checked;
   if (!on && ui.inCall && !media.mic) {
@@ -668,7 +681,7 @@ function stopCapture() {
 // ------------------------------------------------------------------ captions
 let captionTimer;
 function showCaption(who, text, live) {
-  if (!ui.captions || ui.textMode || !text?.trim()) return;
+  if (!ui.captions || !text?.trim()) return;
   const el = $("#captions");
   const t = text.replace(/\s+/g, " ").trim();
   const words = t.split(" ");
@@ -763,7 +776,6 @@ if (RECORDED || !SCENARIOS.length) {
   applyScenario(SCENARIOS.some((s) => s.id === saved) ? saved : SCENARIOS[0].id);
 }
 $("#resetBtn").onclick = () => { send({ type: "reset" }); $("#menu").hidden = true; };
-$("#openBoardBtn").onclick = () => { ui.boardOpen = true; boardChanged(); $("#menu").hidden = true; };
 $("#recordedBtn").onclick = () => { location.href = "/?recorded"; };
 $("#audioOnlyBtn").onclick = () => { $("#menu").hidden = true; if (RECORDED) location.href = "/?call"; else startAudioOnly(); };
 $("#captureBtn").onclick = () => { $("#menu").hidden = true; startCapture(); };
@@ -858,43 +870,72 @@ function sourceLine(c) {
   const s = c.sources?.[0];
   return s ? `<div class="src">Source: <a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.title)}</a>${c.sources.length > 1 ? ` +${c.sources.length - 1}` : ""}</div>` : "";
 }
+// ------------------------------------------------------------------ the thread
+// Callie's panel reads like a message thread: what was said on the call on the left, Callie's
+// reply on the right, newest at the bottom. The booking brief opens the thread, and older pairs
+// fade and fold their details so the newest moment stays the one to read.
+const twoSentences = (t) => {
+  const parts = (t || "").replace(/\s+/g, " ").trim().split(/(?<=[.!?])\s+/);
+  let out = parts[0] || "";
+  for (const p of parts.slice(1, 3)) { if (`${out} ${p}`.length > 380) break; out += ` ${p}`; } // two or three sentences
+  return out;
+};
+const csmFirst = () => (ui.account?.csm?.name || "You").split(" ")[0];
+function sourcesHtml(c, max = 2) {
+  const list = (c.sources || []).filter((x) => x?.url);
+  if (!list.length) return "";
+  const shown = list.slice(0, max).map((x) => `<a href="${esc(x.url)}" target="_blank" rel="noopener">${esc(x.title || x.url)}</a>`).join("");
+  return `<div class="srcs"><span class="lbl">Sources</span>${shown}${list.length > max ? `<span class="more-n">+${list.length - max}</span>` : ""}</div>`;
+}
+// The visual Callie drew for this reply (a checklist, a flow, code), shown right inside it.
+function inlineBoard(c) {
+  const items = (ui.boards.get(c.id) || []).filter((b) => !(c.type === "check" && b.type === "note")).slice(0, 1); // one visual per reply
+  return items.map((b) => `<div class="bitem ${b.type}${b.type === "note" ? ` ${b.tone || "info"}` : ""}">${boardItemHtml(b)}</div>`).join("");
+}
+function askOf(c) {
+  if (c.type === "answer") return { who: firstName(c.askerName), text: c.question };
+  if (c.type === "callie") return { who: "You, privately", text: c.question };
+  if (c.type === "check") return { who: c.speaker ? firstName(c.speaker) : csmFirst(), text: c.claim };
+  if (c.type === "coach") return c.quote ? { who: firstName(c.speaker), text: c.quote } : null;
+  return null;
+}
 function momentHtml(c) {
-  const lat = c.latencyMs ? `${(c.latencyMs / 1000).toFixed(1)}s · ` : "";
-  const meta = `<span class="meta">${lat}${timeOf(c.at)}</span>`;
-  if (c.status === "thinking") {
-    return `<div class="moment thinking"><div class="kicker"><span class="ic" style="background:var(--c-ink-3)">${icon("book")}</span>Looking it up ${meta}</div><div class="q">${esc(c.question)}</div><div class="shimmer"></div><div class="shimmer short"></div></div>`;
-  }
-  if (c.status === "error") return `<div class="moment error"><div class="kicker">Couldn’t answer ${meta}</div><div class="q">${esc(c.answer)}</div></div>`;
+  if (c.status === "thinking") return `<div class="moment thinking" data-cid="${c.id}"><span class="typing"><i></i><i></i><i></i></span>Looking it up…</div>`;
+  if (c.status === "error") return `<div class="moment error" data-cid="${c.id}">Couldn’t answer that one.</div>`;
   if (c.type === "answer" || c.type === "callie") {
-    const kicker = c.type === "callie" ? "For you" : `${esc(firstName(c.askerName))} asked`;
+    const visual = inlineBoard(c);
+    const detail = visual || (c.detail?.length ? `<ul class="d-list">${c.detail.slice(0, 4).map((d) => `<li>${rich(d)}</li>`).join("")}</ul>` : "");
     return `<div class="moment ${c.type}" data-cid="${c.id}">
-      <div class="kicker"><span class="ic">${icon(c.type === "callie" ? "spark" : "book")}</span>${kicker} ${meta}</div>
-      <div class="main">${rich(shortOf(c))}</div>
-      <div class="q">${esc(c.question)}</div>
-      <div class="acts">${c.type === "answer" ? `<button class="mini go" data-a="email" title="${esc(c.sendLabel || `Email ${firstName(c.askerName)} this answer`)}">Send</button>` : ""}<button class="mini" data-a="board">Show on board</button><button class="mini" data-a="more">More</button></div>
+      <div class="main">${rich(twoSentences(c.answer) || c.short || "")}</div>
+      ${detail ? `<div class="detail">${detail}</div>` : ""}
+      ${sourcesHtml(c)}
+      <div class="acts">${c.type === "answer" ? `<button class="mini go" data-a="email" title="${esc(c.sendLabel || `Email ${firstName(c.askerName)} this answer`)}">Send</button>` : ""}<button class="mini" data-a="copy" title="Copy, and put it in the reply box">Copy</button><button class="mini" data-a="more">More</button></div>
       <div class="more">${rich(c.answer)}
         ${c.detail?.length ? `<ul>${c.detail.map((d) => `<li>${rich(d)}</li>`).join("")}</ul>` : ""}
         ${c.privateNote ? `<div class="private-note"><b>For your eyes only</b>${rich(c.privateNote)}</div>` : ""}
-        ${sourceLine(c)}
+        ${sourcesHtml(c, 8)}
         <button class="mini" data-a="share">Make a one-page guide</button>
       </div></div>`;
   }
   if (c.type === "check") {
-    const kicker = c.clarify ? `Clarify · ${esc(firstName(c.speaker))} has it wrong` : c.teammate ? `Correction · ${esc(firstName(c.speaker))} misspoke` : "Correction";
     return `<div class="moment ${c.clarify ? "clarify" : "check"}" data-cid="${c.id}">
-      <div class="kicker"><span class="ic">${icon("alert")}</span>${kicker} ${meta}</div>
+      <div class="tag">${c.clarify ? "Clarify" : "Correction"}</div>
       <div class="main">${rich(c.correction)}</div>
-      <div class="said">“${esc(c.claim)}”</div>
-      ${c.sayInstead ? `<div class="say"><b>Say:</b>${rich(c.sayInstead)}</div>` : ""}
-      <div class="acts"><button class="mini" data-a="email">Email the right info</button><button class="mini" data-a="more">Source</button></div>
-      <div class="more">${sourceLine(c) || "No source attached."}</div></div>`;
+      ${c.sayInstead ? `<div class="say"><b>Say:</b> ${rich(c.sayInstead)}</div>` : ""}
+      ${sourcesHtml(c)}
+    </div>`;
   }
   if (c.type === "coach") {
     const tone = c.tone === "talk-time" ? "Talk time" : `${firstName(c.speaker)} sounds ${c.tone}`;
-    return `<div class="moment coach" data-cid="${c.id}"><div class="kicker"><span class="ic">${icon("chat")}</span>${esc(tone)} ${meta}</div><div class="main">${rich(c.nudge)}</div>${c.say ? `<div class="say"><b>Try:</b>${rich(c.say)}</div>` : ""}</div>`;
+    return `<div class="moment coach" data-cid="${c.id}"><div class="tag">${esc(tone)}</div><div class="main">${rich(c.nudge)}</div>${c.say ? `<div class="say"><b>Try:</b> ${rich(c.say)}</div>` : ""}</div>`;
   }
-  if (c.type === "missed") return `<div class="moment thinking"><div class="kicker">Missed moment ${meta}</div><div class="q">${esc(c.text)}</div></div>`;
+  if (c.type === "missed") return `<div class="moment missed" data-cid="${c.id}">${esc(c.text)}</div>`;
   return "";
+}
+function pairHtml(c) {
+  const ask = askOf(c);
+  const took = c.status === "ready" && c.latencyMs ? ` · ${(c.latencyMs / 1000).toFixed(1)} s` : "";
+  return `${ask ? `<div class="b-in"><span class="who">${esc(ask.who)}</span><p>${esc(ask.text)}</p></div>` : ""}<div class="b-out"><span class="who">Callie${took}</span>${momentHtml(c)}</div>`;
 }
 function wire(el, c) {
   el.querySelectorAll("[data-a]").forEach((b) => {
@@ -902,104 +943,104 @@ function wire(el, c) {
       e.stopPropagation();
       const a = b.dataset.a;
       if (a === "more") b.closest(".moment").classList.toggle("open");
+      if (a === "copy") useAnswer(c);
       if (a === "email") requestEmail(c.id);
       if (a === "share") requestShare(c.id);
-      if (a === "board") send({ type: "board_from_card", cardId: c.id });
     };
   });
 }
 function sendable() {
   return [...ui.order].reverse().map((id) => ui.cards.get(id)).find((c) => c && c.type === "answer" && c.status === "ready");
 }
-function latestCoach() {
-  const c = [...ui.order].reverse().map((id) => ui.cards.get(id)).find((x) => x?.type === "coach");
-  return c && Date.now() - c.at < 150000 ? c : null;
+// The meeting itself, from the Calendly booking: it opens the thread and folds away once the
+// conversation starts.
+function renderBrief() {
+  const a = ui.account;
+  const el = $("#brief");
+  if (!a?.booking) { el.hidden = true; return; }
+  const [title, len] = [(a.booking.eventType || "Customer call").replace(/\s*\(([^)]+)\)\s*$/, ""), (/\(([^)]+)\)/.exec(a.booking.eventType || "") || [])[1]];
+  const guest = a.attendees?.[0];
+  const people = [guest && `${guest.name} · ${a.company || "Cartwell"}`, ui.scenario?.teammate && !RECORDED ? `${ui.scenario.teammate.name} · Arize` : null, a.csm ? `${RECORDED ? a.csm.name : `You (${a.csm.name})`} · Arize` : null].filter(Boolean);
+  const agenda = (a.openItems || []).map((x) => x.charAt(0).toUpperCase() + x.slice(1));
+  const html = `<div class="brief-top"><span class="cal">${icon("clock")}</span><div><b>${esc(title)}</b><span>Today${len ? ` · ${esc(len)}` : ""} · booked via ${esc(a.booking.via || "Calendly")}</span></div></div>
+    <div class="brief-body">
+      <div class="brief-row"><span>With</span><p>${people.map(esc).join("<br />")}</p></div>
+      ${agenda.length ? `<div class="brief-row"><span>Agenda</span><ol>${agenda.map((x) => `<li>${esc(x)}</li>`).join("")}</ol></div>` : ""}
+      ${a.booking.bookingNote ? `<div class="brief-row"><span>${esc(firstName(a.booking.invitee || guest?.name))} wrote</span><p class="note">“${esc(a.booking.bookingNote)}”</p></div>` : ""}
+    </div>`;
+  if (el._html !== html) { el._html = html; el.innerHTML = html; el.onclick = () => el.classList.toggle("open"); }
+  el.hidden = false;
+  el.classList.toggle("folded", ui.thread.length > 0);
 }
-function renderNow() {
-  const stack = $("#now");
-  const primary = ui.cards.get(ui.primaryId);
-  $$(".moment, .coach-chip, .action-row", stack).forEach((x) => x.remove());
-  $("#nowEmpty").hidden = !!primary;
-  // The board dims while the moment in focus is about something else.
-  $("#boardCard").classList.toggle("dim", !!primary && (ui.primaryAt || 0) - (ui.lastBoardAt || 0) > 2500);
-  if (primary) {
-    stack.insertAdjacentHTML("beforeend", momentHtml(primary));
-    const el = stack.lastElementChild;
-    wire(el, primary);
-    if (primary.type === "check" && !primary.clarify && primary.severity !== "low" && !primary._blinked) {
-      primary._blinked = true;
-      el.classList.add("blink");
-      const flash = document.createElement("div");
-      flash.className = "edge-flash";
-      document.body.append(flash);
-      setTimeout(() => flash.remove(), 2300);
+function renderFeed() {
+  const thread = $("#thread");
+  renderBrief();
+  $("#nowEmpty").hidden = ui.thread.length > 0;
+  const now = Date.now();
+  ui.thread.forEach((e, i) => {
+    const key = e.id ? `p-${e.id}` : `a-${e.key}`;
+    let el = thread.querySelector(`[data-key="${key}"]`);
+    if (!el) {
+      el = document.createElement("div");
+      el.dataset.key = key;
+      el.className = e.id ? "pair" : "sysline";
+      if (e.id) el.addEventListener("click", (ev) => { if (el.classList.contains("old") && !ev.target.closest("a, button")) el.classList.toggle("open"); });
+      thread.append(el);
     }
-  }
-}
-function shownNow() {
-  return new Set([ui.primaryId].filter(Boolean));
-}
-const TL_ICON = { answer: "book", ask: "spark", callie: "spark", check: "alert", clarify: "alert", coach: "chat", missed: "clock", action: "mail" };
-function renderTimeline() {
-  const list = $("#timeline");
-  const open = new Set($$(".tl.open", list).map((x) => x.dataset.cid));
-  const shown = shownNow();
-  const rows = [];
-  for (const id of [...ui.order].reverse()) {
-    const c = ui.cards.get(id);
-    if (!c || shown.has(id) || c.status === "thinking") continue;
-    const kind = c.type === "check" && c.clarify ? "clarify" : c.type === "callie" ? "ask" : c.type;
-    rows.push({ at: c.at, html: `<div class="tl ${kind}${open.has(id) ? " open" : ""}" data-cid="${id}"><span class="ic">${icon(TL_ICON[kind] || "book")}</span><span class="t">${esc(summaryOf(c))}</span><svg class="chev"><use href="#i-down" /></svg>${open.has(id) ? `<div class="detail">${momentHtml(c)}</div>` : ""}</div>` });
-  }
-  for (const a of ui.actionLog) rows.push({ at: a.at, html: `<div class="tl action"><span class="ic">${icon("mail")}</span><span class="t">${esc(a.text)}</span></div>` });
-  rows.sort((x, y) => y.at - x.at);
-  list.innerHTML = rows.map((r) => r.html).join("");
-  $$(".tl[data-cid]", list).forEach((row) => {
-    row.onclick = (e) => {
-      if (e.target.closest("button, a")) return;
-      row.classList.toggle("open");
-      renderTimeline();
-    };
-    const card = $(".moment", row);
-    if (card) wire(card, ui.cards.get(row.dataset.cid));
+    if (!e.id) { el.textContent = e.text; return; }
+    const c = ui.cards.get(e.id);
+    if (!c) return;
+    const html = pairHtml(c);
+    if (el._html !== html) {
+      el._html = html;
+      el.innerHTML = html;
+      const m = $(".moment", el);
+      if (m) wire(m, c);
+      // A serious correction blinks once and flashes the screen edge, so it's hard to miss.
+      if (c.type === "check" && !c.clarify && c.severity !== "low" && !c._blinked) {
+        c._blinked = true;
+        m?.classList.add("blink");
+        const flash = document.createElement("div");
+        flash.className = "edge-flash";
+        document.body.append(flash);
+        setTimeout(() => flash.remove(), 2300);
+      }
+    }
+    el.classList.remove("answer", "callie", "check", "clarify", "coach", "missed");
+    el.classList.add(c.type === "check" && c.clarify ? "clarify" : c.type);
+    // The newest pair, and anything from the last 20 seconds, stays open; older pairs fold.
+    el.classList.toggle("old", i < ui.thread.length - 1 && now - e.seen > 20000);
   });
-  const extra = Math.max(0, rows.length - 3);
-  const expanded = $("#earlier").classList.contains("expanded");
-  $("#tlToggle").hidden = !extra;
-  $("#tlCount").textContent = expanded ? "Show less" : `+${extra} earlier`;
+  const feed = $("#feed");
+  if (feed._pinned !== false) feed.scrollTop = feed.scrollHeight;
 }
-$("#tlToggle").onclick = () => { $("#earlier").classList.toggle("expanded"); renderTimeline(); };
+$("#feed").addEventListener("scroll", (e) => { const f = e.currentTarget; f._pinned = f.scrollHeight - f.scrollTop - f.clientHeight < 80; }, { passive: true });
+function logAction(text) {
+  ui.actionLog.push({ text, at: Date.now() });
+  ui.thread.push({ key: `${Date.now()}-${ui.actionLog.length}`, text, seen: Date.now() });
+  renderFeed();
+}
 function upsertCard(card) {
   const isNew = !ui.cards.has(card.id);
   const prev = ui.cards.get(card.id);
   if (prev?._blinked) card._blinked = true;
   ui.cards.set(card.id, card);
-  if (isNew) ui.order.push(card.id);
-  if (card.type !== "missed") {
-    const current = ui.cards.get(ui.primaryId);
-    // Coaching never bumps an answer that's still loading; it waits its turn behind the moment in focus.
-    const takeOver = card.type === "coach"
-      ? !current || (current.status !== "thinking" && Date.now() - ui.primaryAt > 6000)
-      : !current || card.id === ui.primaryId || current.status === "thinking" || (PRIORITY[card.type] || 1) >= (PRIORITY[current.type] || 1) || Date.now() - ui.primaryAt > 4000;
-    if (takeOver && (isNew || card.id === ui.primaryId || current?.status === "thinking")) {
-      if (card.id !== ui.primaryId) { ui.primaryId = card.id; ui.primaryAt = Date.now(); }
-    }
-  }
-  renderNow();
-  renderTimeline();
+  if (isNew) { ui.order.push(card.id); ui.thread.push({ id: card.id, seen: Date.now() }); }
+  renderFeed();
 }
 function resetPanel() {
   ui.cards.clear();
   ui.order.length = 0;
-  ui.primaryId = null;
+  ui.thread = [];
+  ui.boards = new Map();
   ui.actionLog = [];
   ui.transcript = [];
-  renderNow();
-  renderTimeline();
+  $$("#thread .pair, #thread .sysline").forEach((x) => x.remove());
+  renderFeed();
   $("#drawer").hidden = true;
   clearBoard();
 }
-setInterval(() => { if (ui.order.length) renderNow(); }, 15000); // let stale coaching fall into Earlier
+setInterval(() => { if (ui.thread.length) renderFeed(); }, 5000); // fold pairs as they age
 
 // ------------------------------------------------------------------ drafts drawer
 function drawer(htmlStr) {
@@ -1049,9 +1090,8 @@ function onEmail(m) {
   }
   if (m.phase === "sent" || m.phase === "saved") {
     $("#drawer").hidden = true;
-    ui.actionLog.push({ text: m.phase === "sent" ? `Emailed ${m.to}` : "Saved an email to Gmail drafts", at: Date.now() });
+    logAction(m.phase === "sent" ? `Emailed ${m.to}` : "Saved an email to Gmail drafts");
     addHint(m.phase === "sent" ? `Sent to ${m.to} while you’re still on the call.` : "Saved to your Gmail drafts.");
-    renderTimeline();
   }
   if (m.phase === "failed") {
     const note = $("#drawer .note");
@@ -1065,8 +1105,7 @@ function onShare(m) {
   const el = drawer(`<div class="drawer-head"><b>${esc(m.title)}</b>${closeBtn}</div>
     <div class="row" style="display:flex;gap:8px;flex-wrap:wrap"><a class="cds-btn sm" href="${esc(url)}" target="_blank" rel="noopener">Open to screen-share</a><button class="mini" data-copy type="button">Copy link</button></div>`);
   $("[data-copy]", el).onclick = () => navigator.clipboard.writeText(url).catch(() => {});
-  ui.actionLog.push({ text: `Made a page: ${m.title}`, at: Date.now() });
-  renderTimeline();
+  logAction(`Made a page: ${m.title}`);
 }
 function refreshTranscript() {
   const box = $("#drawer .transcript");
@@ -1116,7 +1155,11 @@ function addBoardItem(b, animate) {
   el.addEventListener("click", (e) => onItemClick(e, el));
   $$(".bitem", $("#boardItems")).forEach((x) => x.classList.add("older"));
   $("#boardItems").prepend(el);
-  if (b.origin !== "you") { ui.lastBoardAt = Date.now(); $("#boardCard").classList.remove("dim"); }
+  if (b.origin && b.origin !== "you") {
+    if (!ui.boards.has(b.origin)) ui.boards.set(b.origin, []);
+    ui.boards.get(b.origin).push(b);
+    renderFeed();
+  }
   boardChanged();
   if (animate && b.origin !== "you") {
     $("#board").scrollTo({ top: 0, behavior: "smooth" });
@@ -1443,9 +1486,20 @@ async function playRecorded(name, fromIndex = 0) {
     if (withCallie) await waitForWhisperDone();
     if (line.chapter) recLog({ type: "chapter", title: line.chapter });
     const meta = { id: line.id, who: line.who === "csm" ? "csm" : "customer", private: !!line.private, speaker: cast[line.who].name };
+    // Julian answers only once Callie has given him the answer (or the nudge, or the correction).
+    if (withCallie && line.waitFor) {
+      const since = line.waitFor === "check" ? rec.lastCsmEnd || 0 : rec.lastCustomerEnd || 0;
+      const landed = () => ui.thread.some((e) => {
+        const c = e.id && e.seen >= since - 500 && ui.cards.get(e.id);
+        return c && c.status === "ready" && (line.waitFor === "check" ? c.type === "check" && !c.clarify : c.type === line.waitFor);
+      });
+      for (let t = 0; t < 18000 && !rec.stop && !landed(); t += 200) await sleep(200);
+      await sleep(1200); // a beat to read Callie's reply before speaking
+    }
     if (withCallie) send({ type: "demo_line", phase: "start", ...meta });
     await playLine(line);
     if (withCallie) send({ type: "demo_line", phase: "end", ...meta });
+    if (line.who === "customer") rec.lastCustomerEnd = Date.now(); else rec.lastCsmEnd = Date.now();
     if (!withCallie && line.miss) {
       misses.push(line.miss);
       upsertCard({ id: `miss-${line.id}`, type: "missed", status: "ready", text: line.miss, at: Date.now() });
@@ -1564,7 +1618,7 @@ if (motionOk && "IntersectionObserver" in window) {
     [".cap-copy", ""], [".cap-ui", "zoom"], [".wide-out", ""],
     [".ladders > *", ""], [".ladder li", "from-left"], [".steps li", ""], [".pipe span", "from-left"],
     [".table-wrap", ""], [".timeline li", ""], [".roadmap li", ""], [".roadmap", ""], [".ns-card", ""], [".gates", ""], [".lc-stage", ""], [".lc-why > *", ""], [".stages > *", ""], [".notetaker", ""],
-    [".h-final-card", "zoom"], [".stack-hero > *", ""], [".lane", ""], [".flow5 li", "from-left"], [".half", ""],
+    [".h-final-card", "zoom"], [".stack-hero > *", ""], [".lane", ""], [".flow5 li", "from-left"], [".half", ""], [".rx-flow > *", ""],
   ];
   const seen = new Set();
   for (const [sel, kind] of groups) {

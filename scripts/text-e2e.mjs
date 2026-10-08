@@ -67,8 +67,8 @@ const dump = async () => {
 };
 for (const [at, text] of lines) {
   while (Date.now() - t0 < at * 1000) { await page.waitForTimeout(2500); await dump(); }
-  await page.fill("#chatInput", text);
-  await page.press("#chatInput", "Enter");
+  await page.fill("#demoReplyInput", text);
+  await page.press("#demoReplyInput", "Enter");
   console.log(`t+${Math.round((Date.now() - t0) / 1000)}s typed: ${text}`);
 }
 while (Date.now() - t0 < (Number(process.env.SECONDS) || 140) * 1000) { await page.waitForTimeout(2500); await dump(); }

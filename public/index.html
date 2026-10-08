@@ -94,7 +94,7 @@
         <div class="h-sec-head">
           <p class="cds-eyebrow">The scenario</p>
           <h2>A real onboarding call, played live.</h2>
-          <p>Grace Liu, product manager of Cartwell’s AI shopping assistant, booked a working session with Arize through Calendly. She wants to rewrite the assistant’s prompt before the holiday rush without breaking checkout. In the recording, Julian Hayes, an Arize solutions engineer, runs the call with Callie’s help. In the live call, you play Arize’s customer success manager and can bring Julian in. Grace and Julian are both AI, and Callie helps only the Arize side.</p>
+          <p>Grace Liu, product manager of Cartwell’s AI shopping assistant, booked a working session with Arize through Calendly. She wants to rewrite the assistant’s prompt before the holiday rush without breaking checkout. In the recording, Julian Hayes, an Arize solutions engineer, runs the call and Callie helps him; Grace and Julian are both AI. In the live call, you join as yourself, Julian can join you, and Callie helps only you.</p>
         </div>
         <div class="h-grid three">
           <article class="h-card brand-card">
@@ -107,7 +107,7 @@
             <div class="brand-logo arize"><img src="/img/brand/arize-logo.svg" alt="Arize" /></div>
             <h3>The vendor: Arize</h3>
             <p>An AI observability and evaluation platform. Callie answers from Arize’s public documentation (892 passages) plus a short list of verified key facts, the way it would use any company’s own docs.</p>
-            <ul class="mini-facts"><li><b>Jordan Reyes</b> customer success manager, played by you</li><li><b>Julian Hayes</b> solutions engineer, an AI teammate</li><li><b>Callie</b> private to Jordan</li></ul>
+            <ul class="mini-facts"><li><b>Julian Hayes</b> solutions engineer, an AI on the call</li><li><b>Callie</b> private to the Arize side</li></ul>
           </article>
           <article class="h-card brand-card setup">
             <div class="brand-logo setup-logo"><span class="cds-tile blue"><svg><use href="#i-clock" /></svg></span><b>Booked via Calendly</b></div>
@@ -564,7 +564,58 @@
         <div class="stack-ops">
           <div><b>Hosting</b><span>Railway: one service for the web app, one for the AI people. Rate-limited, not indexed by search engines.</span></div>
           <div><b>Testing</b><span>Automated end-to-end calls (spoken and typed) and a scripted 15-check test of the recorded call.</span></div>
-          <div><b>Built with</b><span>Claude Code. Illustrations by gpt-image-2. The design follows Calendly’s 2026 visual language as an homage; this is not a Calendly product.</span></div>
+        </div>
+      </section>
+
+      <section class="h-sec alt stack-sec retrieval">
+        <div class="h-sec-head">
+          <p class="cds-eyebrow">Deep dive: finding the right page</p>
+          <h2>Keyword search plus Gemini embeddings.</h2>
+          <p>Before Callie answers, it finds the few passages in the company’s docs that actually answer the question. Two searches run at once, because each one catches what the other misses.</p>
+        </div>
+        <div class="rx-flow" aria-label="How a question finds its passages">
+          <div class="rx-q"><span class="rx-k">The question</span><b>“Can we compare against last holiday season?”</b></div>
+          <div class="rx-arrow">↓</div>
+          <div class="rx-two">
+            <div class="rx-box kw">
+              <span class="rx-k">Keyword search · BM25</span>
+              <p>Finds passages that use the same words. Great for exact terms like <code>ARIZE_SPACE_ID</code> or “Pro plan”.</p>
+              <div class="rx-hits"><span>“holiday”</span><span>“compare”</span><span>“season”</span></div>
+              <em>Here it finds little: the docs never say “holiday season”.</em>
+            </div>
+            <div class="rx-box em">
+              <span class="rx-k">Meaning search · Gemini Embedding 2</span>
+              <p>Turns the question into 768 numbers that capture what it means, and finds passages that mean the same thing.</p>
+              <div class="rx-hits"><span>trace retention</span><span>datasets from old traces</span></div>
+              <em>Here it finds the retention page, the actual answer.</em>
+            </div>
+          </div>
+          <div class="rx-arrow">↓</div>
+          <div class="rx-blend"><span class="rx-k">Blend</span><div class="rx-bar"><i class="kw" style="width:40%">Keyword 40%</i><i class="em" style="width:60%">Meaning 60%</i></div><p>The top 6 passages (at most 2 from any one page), plus the admin-verified key facts.</p></div>
+          <div class="rx-arrow">↓</div>
+          <div class="rx-ans"><span class="rx-k">Answer, with sources</span><b>Gemini 3.8 Flash writes only from those passages.</b><div class="srcs"><span class="lbl">Sources</span><a>Pricing and usage</a><a>Build a dataset</a></div></div>
+        </div>
+        <div class="halves rx-halves">
+          <div class="half">
+            <span class="lane-tag demo">Before the call · indexing the docs</span>
+            <ul class="tech">
+              <li><b>Crawl</b><span>The docs site, help center and wikis. Here: 65 Arize pages.</span></li>
+              <li><b>Split by heading</b><span>Each section becomes a passage: 892 in this prototype.</span></li>
+              <li><b>Keyword index</b><span>Counts which words each passage uses (BM25), with headings counted twice because they say what a section is about.</span></li>
+              <li><b>Meaning index</b><span>Gemini Embedding 2 turns every passage into 768 numbers, stored next to the text.</span></li>
+              <li><b>Key facts</b><span>A short list an admin verifies (plans, limits, retention). Answers and fact-checks lean on it first.</span></li>
+            </ul>
+          </div>
+          <div class="half prod">
+            <span class="lane-tag real">During the call · answering a question</span>
+            <ul class="tech">
+              <li><b>Both searches at once</b><span>Keyword scores and meaning scores are each scaled from 0 to 1, then blended 40 / 60.</span></li>
+              <li><b>Six passages, at most two per page</b><span>So one long page can’t crowd out the rest.</span></li>
+              <li><b>Grounded answer</b><span>The model may use only those passages and the key facts, and says when it isn’t sure.</span></li>
+              <li><b>Sources on every reply</b><span>The pages it used become the links under Callie’s answer.</span></li>
+              <li><b>Kept fresh</b><span>The index refreshes nightly; questions it couldn’t answer become a docs-gap list.</span></li>
+            </ul>
+          </div>
         </div>
       </section>
     </main>
@@ -582,7 +633,7 @@
           <div class="customer-still" id="customerStill"><span class="initials">GL</span></div>
           <div class="chip-timer" id="timerChip"><span class="rec"></span><span id="callTimer">00:00:00</span></div>
           <div class="filmstrip">
-            <div class="selfview" id="selfView"><video id="selfVideo" autoplay muted playsinline></video><div class="self-fallback">JR</div><div class="self-label"><span>Jordan (you)</span><span class="bars" id="micBars"><i></i><i></i><i></i></span></div></div>
+            <div class="selfview" id="selfView"><video id="selfVideo" autoplay muted playsinline></video><div class="self-fallback">LC</div><div class="self-label"><span>Leland (you)</span><span class="bars" id="micBars"><i></i><i></i><i></i></span></div></div>
             <div class="selfview mate-tile" id="mateTile" hidden>
               <div class="mate-stage" id="mateStage"></div>
               <div class="self-fallback mate-fallback">JH</div>
@@ -643,10 +694,10 @@
               <div id="simMenu"></div>
             </div>
             <h4>Session</h4>
-            <button class="item" id="openBoardBtn" type="button">Open the whiteboard</button>
             <button class="item" id="resetBtn" type="button">Clear cards and whiteboard</button>
           </div>
         </div>
+        <form class="demo-reply" id="demoReply" autocomplete="off"><span class="dr-tag">Demo only</span><input id="demoReplyInput" placeholder="Respond back in text…" aria-label="Demo only: respond back to Grace in text" /><button type="submit" aria-label="Send to Grace"><svg><use href="#i-arrow" /></svg></button></form>
       </section>
 
       <aside class="callie" aria-label="Callie Live Assistant, private to you">
@@ -655,12 +706,11 @@
           <b>Callie Live Assistant</b>
           <span class="live-dot" id="liveDot" title="Only you can see this"></span>
         </div>
-        <div class="feed" id="earlier">
-          <div class="now-stack" id="now">
+        <div class="feed" id="feed">
+          <div class="thread" id="thread">
+            <div class="brief" id="brief" hidden></div>
             <div class="now-empty" id="nowEmpty"><span class="wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span><span id="nowEmptyText">Ready</span></div>
           </div>
-          <div class="recent" id="timeline"></div>
-          <button class="recent-more" id="tlToggle" type="button" hidden><span id="tlCount"></span></button>
         </div>
         <section class="c-board" id="boardCard" hidden>
           <div class="c-head">

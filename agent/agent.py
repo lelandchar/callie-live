@@ -1,7 +1,7 @@
 """Grace Liu, the AI customer in the Callie Live Assistant demo.
 
 A LiveKit Agents worker. Gemini 3.8 Live is Grace's voice and brain, and a Spatius avatar
-gives her a face. Callie's server dispatches this agent by name when Jordan joins the call,
+gives her a face. Callie's server dispatches this agent by name when the CSM joins the call,
 and passes the persona in the job metadata, so the prompt lives in one place
 (callie-live/lib/persona.js) for both the voice-only roleplay and this video call.
 """
@@ -78,7 +78,7 @@ async def entrypoint(ctx: JobContext) -> None:
 
     if meta.get("greet", True):
         await session.generate_reply(
-            instructions=meta.get("greeting") or "The call has started. Thank Jordan for making the time in one short sentence, then ask your first question."
+            instructions=meta.get("greeting") or "The call has started. Thank them for making the time in one short sentence, then ask your first question."
         )
 
 
