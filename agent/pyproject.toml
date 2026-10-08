@@ -1,0 +1,12 @@
+[project]
+name = "callie-customer-agent"
+version = "0.1.0"
+description = "Grace, the AI customer for the Callie Live demo: a LiveKit Agents worker with a Gemini Live voice and a Spatius avatar."
+requires-python = ">=3.11,<3.14"
+dependencies = [
+  "python-dotenv>=1.0.0",
+  # Keep the agents framework and its plugins on the same release.
+  "livekit-agents==1.8.5",
+  "livekit-plugins-google==1.8.5",
+  "livekit-plugins-spatius==1.8.5",
+]

@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Whiteboard · Callie Live</title>
+  <link rel="stylesheet" href="/theme.css" />
+  <link rel="stylesheet" href="/app.css" />
+  <style>
+    body { margin: 0; background: var(--c-bg); color: var(--c-ink); font-family: var(--f-sans); }
+    .present-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 14px 22px; }
+    .present-head b { font: 600 18px/1.2 var(--f-display); letter-spacing: -0.015em; }
+    .present-head span { font-size: 13px; color: var(--c-ink-3); }
+    .board { position: fixed; inset: 58px 18px 18px; margin: 0; border-radius: 22px; box-shadow: 0 0 0 1px rgba(7, 26, 49, 0.06), var(--sh-card); }
+    .board-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); align-items: start; gap: 16px; padding: 22px; }
+    .bitem.flow, .bitem.code { grid-column: 1 / -1; }
+    .flow .node { min-width: 130px; max-width: 220px; }
+    .flow .node b { font-size: 16px; padding: 14px 16px; }
+    .flow .node span { font-size: 13px; }
+    .b-text, .bitem.checklist li { font-size: 15px; }
+    .bitem.code pre { font-size: 14px; }
+  </style>
+</head>
+<body>
+  <div class="present-head"><b id="ptitle">Whiteboard</b><span>Share this window in your meeting. Corrections and private notes stay in your panel.</span></div>
+  <div class="board"><div class="board-items" id="boardItems"></div><div class="board-empty" id="empty">The whiteboard is empty. Items Callie draws appear here.</div></div>
+  <svg width="0" height="0" style="position:absolute"><symbol id="i-flow-arrow" viewBox="0 0 30 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9h24"/><path d="m20 3 6 6-6 6"/></symbol></svg>
+  <script type="module">
+    // A read-only, customer-safe mirror of the presenter's whiteboard: correction notes and
+    // anything private stay in the CSM's panel.
+    const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
+    const rich = (s) => esc(s).replace(/`([^`]+)`/g, "<code>$1</code>");
+    const shareable = (b) => !(b.type === "note" && b.tone === "correction");
+    const items = document.getElementById("boardItems");
+    const empty = () => (document.getElementById("empty").hidden = items.children.length > 0);
+    function html(b) {
+      const title = b.title ? `<span class="b-title">${esc(b.title)}</span>` : "<span></span>";
+      if (b.type === "note" || b.type === "text") return `<div class="b-head">${title}</div><div class="b-text">${rich(b.text)}</div>`;
+      if (b.type === "code") return `<div class="b-head">${title}<span class="lang">${esc(b.language)}</span></div><pre>${esc(b.code)}</pre>`;
+      if (b.type === "flow") return `${b.title ? `<div class="b-head">${title}</div>` : ""}<div class="flow">${b.steps.map((s, i) => { const [l, c] = s.split(/\s+\|\s+/); return `${i ? `<span class="arrow"><svg viewBox="0 0 30 18"><use href="#i-flow-arrow" width="30" height="18" /></svg></span>` : ""}<span class="node"><b>${esc(l)}</b>${c ? `<span>${esc(c)}</span>` : ""}</span>`; }).join("")}</div>`;
+      if (b.type === "checklist") return `<div class="b-head">${title}</div><ul>${b.items.map((s) => `<li><input type="checkbox" /><span>${rich(s)}</span></li>`).join("")}</ul>`;
+      return "";
+    }
+    function add(b) {
+      if (!shareable(b)) return;
+      const el = document.createElement("div");
+      el.className = `bitem ${b.type}${b.type === "note" ? ` ${b.tone || "info"}` : ""}`;
+      el.dataset.bid = b.id;
+      el.innerHTML = html(b);
+      items.prepend(el);
+      empty();
+    }
+    const sid = new URLSearchParams(location.search).get("sid") || "";
+    function connect() {
+      const ws = new WebSocket(`${location.protocol === "https:" ? "wss" : "ws"}://${location.host}/ws?sid=${encodeURIComponent(sid)}&view=board`);
+      ws.onmessage = (e) => {
+        const m = JSON.parse(e.data);
+        if (m.type === "hello") { items.innerHTML = ""; [...m.board].reverse().forEach(add); document.getElementById("ptitle").textContent = `${m.account.company} · whiteboard`; empty(); }
+        if (m.type === "board" && m.op === "add") add(m.item);
+        if (m.type === "board" && m.op === "erase") { document.querySelector(`[data-bid="${m.id}"]`)?.remove(); empty(); }
+        if ((m.type === "board" && m.op === "clear") || m.type === "reset") { items.innerHTML = ""; empty(); }
+      };
+      ws.onclose = () => setTimeout(connect, 1000);
+    }
+    connect();
+  </script>
+</body>
+</html>

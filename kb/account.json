@@ -1,0 +1,53 @@
+{
+  "company": "Cartwell",
+  "industry": "online marketplace (fictional), building an AI shopping assistant",
+  "plan": "AX Pro (trial, day 9 of 14)",
+  "goal": "traces and an online hallucination eval on the shopping assistant before the holiday code freeze on Nov 15",
+  "stack": [
+    "Python",
+    "LangGraph agent",
+    "OpenAI GPT models",
+    "product-catalog RAG",
+    "order-lookup tools",
+    "AWS"
+  ],
+  "attendees": [
+    {
+      "name": "Grace Liu",
+      "role": "Engineering lead, AI shopping assistant",
+      "email": "grace.liu@cartwell.example"
+    },
+    {
+      "name": "Marcus Lee",
+      "role": "Security and compliance",
+      "email": "marcus.lee@cartwell.example"
+    }
+  ],
+  "csm": {
+    "name": "Jordan Reyes",
+    "title": "Customer Success Manager at Arize"
+  },
+  "lastCall": "Sept 24 kickoff. Agreed to use OpenInference auto-instrumentation for LangGraph. Grace worried that shoppers' addresses, emails and order numbers would show up in traces.",
+  "openItems": [
+    "PII masking for shopper messages",
+    "group multi-turn shopping chats into sessions",
+    "confirm retention on Pro",
+    "overhead during holiday traffic spikes"
+  ],
+  "internalOnly": [
+    "Expansion target: Enterprise (holiday traffic will far exceed Pro's included spans; SSO)",
+    "Trial ends in 5 days"
+  ],
+  "booking": {
+    "via": "Calendly",
+    "eventType": "Onboarding working session (45 min)",
+    "invitee": "Grace Liu",
+    "bookingNote": "Want tracing on our shopping assistant before code freeze, and to make sure customer PII never lands in traces."
+  },
+  "vendor": "Arize",
+  "kbName": "Arize AX docs",
+  "linkDomains": [
+    "https://arize.com/",
+    "https://docs.arize.com/"
+  ]
+}

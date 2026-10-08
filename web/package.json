@@ -1,0 +1,17 @@
+{
+  "name": "callie-live-call",
+  "private": true,
+  "type": "module",
+  "description": "Browser bundle for the video call: LiveKit room + Spatius avatar. Built into ../public/call/.",
+  "scripts": {
+    "build": "vite build && node copy.mjs"
+  },
+  "dependencies": {
+    "@spatius/avatarkit": "1.3.10",
+    "@spatius/avatarkit-rtc": "1.1.5",
+    "livekit-client": "2.22.3"
+  },
+  "devDependencies": {
+    "vite": "^6.3.0"
+  }
+}

@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Callie Live · Calendly Labs concept</title>
+  <meta name="description" content="Callie Live: a private copilot for live customer calls. An interview case prototype by Leland Char." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%23dbee9f'/%3E%3Cpath d='M16 6l2.2 6.6L25 15l-6.8 2.4L16 24l-2.2-6.6L7 15l6.8-2.4z' fill='%233b5410'/%3E%3C/svg%3E" />
+  <link rel="stylesheet" href="/theme.css" />
+  <link rel="stylesheet" href="/home.css" />
+  <link rel="stylesheet" href="/app.css" />
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="i-spark" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2.5c.4 0 .7.3.8.6l1.5 5c.2.8.9 1.4 1.6 1.6l5 1.5c.8.2.8 1.4 0 1.6l-5 1.5c-.8.2-1.4.9-1.6 1.6l-1.5 5c-.2.8-1.4.8-1.6 0l-1.5-5c-.2-.8-.9-1.4-1.6-1.6l-5-1.5c-.8-.2-.8-1.4 0-1.6l5-1.5c.8-.2 1.4-.9 1.6-1.6l1.5-5c.1-.4.4-.6.8-.6Z"/></symbol>
+      <symbol id="i-mic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><path d="M12 19v3"/></symbol>
+      <symbol id="i-video" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 13 5.2 3.5a.5.5 0 0 0 .8-.4V7.9a.5.5 0 0 0-.8-.4L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></symbol>
+      <symbol id="i-share" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 10 3-3 3 3"/><path d="M12 13V7"/><rect width="20" height="14" x="2" y="3" rx="2"/><path d="M12 17v4M8 21h8"/></symbol>
+      <symbol id="i-hangup" viewBox="0 0 24 24" fill="currentColor"><path d="M2.6 14.6c5.3-4.7 13.5-4.7 18.8 0 .5.4.5 1.2.1 1.7l-1.6 1.9c-.4.5-1.1.6-1.6.3l-2.6-1.4c-.5-.3-.8-.8-.8-1.3v-1.6a12.6 12.6 0 0 0-5.8 0v1.6c0 .5-.3 1-.8 1.3l-2.6 1.4c-.5.3-1.2.2-1.6-.3l-1.6-1.9c-.4-.5-.4-1.3.1-1.7Z"/></symbol>
+      <symbol id="i-more" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+      <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M12 6v8"/><path d="M12 18.5h.01"/></symbol>
+      <symbol id="i-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></symbol>
+      <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z"/></symbol>
+      <symbol id="i-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-9 5.7a2 2 0 0 1-2 0L2 7"/></symbol>
+      <symbol id="i-board" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a1 1 0 0 1 3 3l-9 9a2 2 0 0 1-.9.5l-2.9.8a.5.5 0 0 1-.6-.6l.8-2.9a2 2 0 0 1 .5-.9z"/></symbol>
+      <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M12 6.5V12l3.5 2"/></symbol>
+      <symbol id="i-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></symbol>
+      <symbol id="i-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></symbol>
+      <symbol id="i-flow-arrow" viewBox="0 0 30 18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9h24"/><path d="m20 3 6 6-6 6"/></symbol>
+      <symbol id="i-pen" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.2 6.8a1 1 0 0 0-4-4L3.8 16.2a2 2 0 0 0-.5.8L2 21.4a.5.5 0 0 0 .6.6l4.4-1.3a2 2 0 0 0 .8-.5z"/></symbol>
+      <symbol id="i-sticky" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8Z"/><path d="M15 3v4a2 2 0 0 0 2 2h4"/></symbol>
+      <symbol id="i-eraser" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></symbol>
+      <symbol id="i-pointer" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4.7a.5.5 0 0 1 .7-.7l16 6.5a.5.5 0 0 1-.1 1l-6.1 1.6a2 2 0 0 0-1.4 1.4l-1.6 6.1a.5.5 0 0 1-1 .1z"/></symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></symbol>
+      <symbol id="i-external" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></symbol>
+      <symbol id="i-play" viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.9l12-7.5a1 1 0 0 0 0-1.7l-12-7.5A1 1 0 0 0 7 4.5Z"/></symbol>
+      <symbol id="i-pause" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></symbol>
+      <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.7 9a1 1 0 0 1-.6 0C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.2-2.7a1.2 1.2 0 0 1 1.6 0C14.5 3.8 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></symbol>
+      <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+    </defs>
+  </svg>
+
+  <!-- ================================================================ HOME ================ -->
+  <div class="home" id="home">
+    <header class="h-nav-wrap">
+      <nav class="h-nav" aria-label="Main">
+        <a class="h-logo" href="/" aria-label="Callie Live home"><span class="brand-tile"><svg><use href="#i-spark" /></svg></span><b>Callie Live</b><span class="cds-pill">Calendly Labs concept</span></a>
+        <div class="h-tabs" role="tablist">
+          <button class="h-tab is-active" role="tab" data-tab="overview">Overview</button>
+          <button class="h-tab" role="tab" data-tab="readme">Read me <span class="h-private">private</span></button>
+        </div>
+        <div class="h-actions">
+          <a class="cds-link h-backup" href="/?recorded" data-recorded>Recorded call</a>
+          <button class="cds-btn" data-start>Start experience</button>
+        </div>
+      </nav>
+    </header>
+
+    <main class="h-view" data-view="overview">
+      <!-- hero -->
+      <section class="h-hero">
+        <div class="h-hero-copy">
+          <p class="cds-eyebrow">Calendly Labs · AI Assistant case</p>
+          <h1>Never say “I’ll get back to you” again.</h1>
+          <p class="h-lede">Callie Live is a private copilot for customer calls. It listens from your laptop, answers the customer’s question before you finish saying “good question,” catches your mistakes before they build on them, and puts the right diagram or doc on screen while you’re still talking.</p>
+          <div class="h-cta">
+            <button class="cds-btn lg" data-start>Start experience <svg width="16" height="16"><use href="#i-arrow" /></svg></button>
+            <a class="cds-btn lg outline" href="/?recorded" data-recorded>Watch the recorded call</a>
+          </div>
+          <p class="h-note">You’ll be Jordan, a customer success manager, on a video call with Grace, an AI customer. Use headphones and allow your mic and camera.</p>
+        </div>
+        <div class="h-hero-visual" aria-hidden="true">
+          <div class="mesh">
+            <div class="mock-call">
+              <div class="mock-video"><img src="/img/office.jpg" alt="" /><span class="mock-chip"><i></i>00:09:41 · Customer call</span><span class="mock-name"><b>Grace Liu · Cartwell</b>Engineering Lead</span><span class="mock-self">JR</span></div>
+            </div>
+            <div class="mock-panel">
+              <div class="mock-head"><span class="brand-tile"><svg><use href="#i-spark" /></svg></span><div><b>Callie</b><span>Listening · private to you</span></div></div>
+              <div class="moment check"><div class="kicker"><span class="ic"><svg><use href="#i-alert" /></svg></span>Correction</div><div class="main">Pro keeps traces for 30 days, not 90.</div><div class="say"><b>Say:</b>Quick correction, Pro is 30 days. Longer retention is on Enterprise.</div></div>
+              <div class="coach-chip"><span class="ic"><svg><use href="#i-chat" /></svg></span><span><b>Grace sounds unsure:</b> show where the API key lives.</span></div>
+              <div class="action-row"><svg><use href="#i-mail" /></svg><span>Email Grace the masking guide</span><span class="cds-btn sm">Send</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- the scenario -->
+      <section class="h-sec" id="scenario">
+        <div class="h-sec-head">
+          <p class="cds-eyebrow">The scenario</p>
+          <h2>A real onboarding call, played live.</h2>
+          <p>Cartwell, a fictional online marketplace, is nine days into a 14-day Arize trial. Their engineering lead booked a 45-minute working session through Calendly to get tracing running before the holiday code freeze.</p>
+        </div>
+        <div class="h-grid three">
+          <article class="h-card"><span class="cds-tile blue"><svg><use href="#i-video" /></svg></span><h3>On the left: the call</h3><p>Grace Liu, Cartwell’s engineering lead, is an AI customer. A Gemini Live voice and a Spatius avatar, joined over LiveKit. She asks real onboarding questions and believes whatever you tell her.</p></article>
+          <article class="h-card"><span class="cds-tile callie"><svg><use href="#i-spark" /></svg></span><h3>On the right: Callie</h3><p>Only you see it. Callie hears both sides, answers from Arize’s public docs (776 passages), checks what you say, reads Grace’s tone and draws on the whiteboard.</p></article>
+          <article class="h-card"><span class="cds-tile lavender"><svg><use href="#i-mic" /></svg></span><h3>You are Jordan</h3><p>Arize’s customer success manager. Answer out loud. Say something wrong on purpose (try “Pro keeps traces for 90 days”) and watch what happens.</p></article>
+        </div>
+      </section>
+
+      <!-- ICP and pains -->
+      <section class="h-sec alt" id="who">
+        <div class="h-sec-head">
+          <p class="cds-eyebrow">Who it’s for</p>
+          <h2>Technical onboarding CSMs, live on 10 to 20 customer calls a week.</h2>
+          <p>Customer success managers and solutions consultants at B2B software companies. Every call is a live product exam in front of a customer, usually with the same accounts week after week. They book those calls with Calendly today; they’re Calendly’s core Teams and Enterprise users.</p>
+        </div>
+        <div class="pains">
+          <div class="pain-row head"><span>What goes wrong today</span><span>What Callie Live does</span></div>
+          <div class="pain-row"><div><b>“I’ll get back to you.”</b><p>A question the CSM can’t answer becomes a follow-up, and the customer’s progress waits a day or a week.</p></div><div><b>Answers in about 3 seconds</b><p>The line to say, with the source, from the company’s docs and the account notes. The north star counts these.</p></div></div>
+          <div class="pain-row"><div><b>Confidently wrong.</b><p>The CSM states the wrong limit or plan, and the customer builds on it. In the demo: “Pro keeps traces for 90 days.” It’s 30.</p></div><div><b>Fact-checks in about 2 seconds</b><p>A red correction with a graceful line to say. An optional whisper in your ear for the serious ones.</p></div></div>
+          <div class="pain-row"><div><b>Missed signals.</b><p>Confusion, skepticism and frustration go unnoticed until they show up in the renewal.</p></div><div><b>Private coaching</b><p>Callie reads the customer’s tone and suggests the next move. Never visible to the customer, never reported to a manager.</p></div></div>
+          <div class="pain-row"><div><b>Homework after every call.</b><p>Docs to dig up, snippets to send, a diagram that would have helped ten minutes ago.</p></div><div><b>Show and send, during the call</b><p>A whiteboard that draws itself, plus emails and one-page guides you send with one click.</p></div></div>
+        </div>
+      </section>
+
+      <!-- MVP scope -->
+      <section class="h-sec" id="mvp">
+        <div class="h-sec-head">
+          <p class="cds-eyebrow">The MVP</p>
+          <h2>Four capabilities, in priority order. Everything else waits.</h2>
+          <p>Scoped for one PM, four engineers and one designer to ship a public beta in under 12 weeks.</p>
+        </div>
+        <div class="h-split">
+          <ol class="mvp-list">
+            <li><b>Answers.</b> The customer asks; an answer card with sources lands in 3 to 4 seconds, drawn from the company’s docs and the account notes.</li>
+            <li><b>Fact-checks.</b> The CSM misspeaks; a red correction blinks with a “say instead” line. A customer misconception gets a private Clarify card.</li>
+            <li><b>Show and send.</b> Callie draws flows, code and checklists on a whiteboard the CSM can present, and drafts emails and one-page guides sent with one click.</li>
+            <li><b>Coaching.</b> Private nudges when the customer sounds confused, skeptical or frustrated, or when the CSM is talking too much.</li>
+          </ol>
+          <div class="h-card out">
+            <h3>Out of scope for the MVP</h3>
+            <ul class="x-list">
+              <li>Speaking to the room</li>
+              <li>Sending anything without a click</li>
+              <li>Post-meeting follow-ups (Notetaker and Callie already cover them)</li>
+              <li>CRM writes</li>
+              <li>Non-English calls</li>
+              <li>Internal meetings</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- effortless + trust -->
+      <section class="h-sec alt" id="trust">
+        <div class="h-sec-head">
+          <p class="cds-eyebrow">Effortless, then trusted</p>
+          <h2>Zero setup in the moment. A little more autonomy every week.</h2>
+        </div>
+        <div class="h-grid three">
+          <article class="h-card"><h3>Zero setup</h3><p>Context loads from the Calendly booking: who’s coming, why, in the invitee’s own words, and what was promised last time. Listening starts with the call. No bot joins the meeting.</p></article>
+          <article class="h-card"><h3>One moment at a time</h3><p>A single Now card with the line to say, readable in two seconds. A whiteboard that draws itself. A one-line history. Details sit behind “More.”</p></article>
+          <article class="h-card"><h3>Audience-aware</h3><p>Internal notes such as “trial ends in 5 days” never reach anything the customer can see. Present opens a customer-safe whiteboard without corrections or private notes.</p></article>
+        </div>
+        <div class="ladders">
+          <div class="ladder">
+            <h3>The trust ladder, per action type</h3>
+            <ol><li><b>Show</b><span>cards</span></li><li><b>Suggest</b><span>drafts, “say instead”</span></li><li><b>Send with one click</b><span>the MVP stops here</span></li><li><b>Auto-send low-risk items</b><span>after about 20 approvals in a row without edits</span></li></ol>
+          </div>
+          <div class="ladder">
+            <h3>The interruption ladder</h3>
+            <ol><li><b>Silent card</b><span>the default</span></li><li><b>Blink</b><span>serious corrections</span></li><li><b>Whisper in your ear</b><span>opt-in, under a second to first audio</span></li></ol>
+          </div>
+        </div>
+      </section>
+
+      <!-- quality -->
+      <section class="h-sec" id="quality">
+        <div class="h-sec-head">
+          <p class="cds-eyebrow">Quality</p>
+          <h2>Correct, timely and appropriate, measured before launch.</h2>
+          <p>A confidently wrong answer or a false correction is a Sev-1. Launch requires zero Sev-1s in the last 200 eval items.</p>
+        </div>
+        <div class="table-wrap">
+          <table class="h-table">
+            <thead><tr><th>Dimension</th><th>What “good” means</th><th>How we measure it</th></tr></thead>
+            <tbody>
+              <tr><td><b>Correct and grounded</b></td><td>Every claim cites a source</td><td>Precision on a gold set of 300 real call questions; Sev-1 count</td></tr>
+              <tr><td><b>Timely</b></td><td>Arrives before the moment passes</td><td>Answer p50 under 3 s, p90 under 5 s; whisper starts under 1 s after a correction</td></tr>
+              <tr><td><b>Appropriate</b></td><td>Interrupts only when it matters</td><td>At least 80% of corrections accepted, not dismissed; coaching rated helpful</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="h-grid two">
+          <article class="h-card"><h3>Every call line is a test case</h3><p>Each scripted line has an expected outcome: answer, correction, clarify or coach. The suite reruns on every prompt or model change. This prototype’s 13-chapter recorded call has 15 checks, and all of them pass.</p></article>
+          <article class="h-card"><h3>A weekly taste review</h3><p>Design and engineering read 30 real cards together each week: was it right, was it needed, was it on time, was it kind? The answers tune prompts and interruption thresholds.</p></article>
+        </div>
+      </section>
+
+      <!-- metrics -->
+      <section class="h-sec alt" id="metrics">
+        <div class="h-sec-head">
+          <p class="cds-eyebrow">Metrics</p>
+          <h2>North star: in-call resolution rate.</h2>
+          <p>The share of customer questions answered during the call, with no “I’ll get back to you.” Baseline it before launch from existing Notetaker transcripts by counting questions and the deferrals that answer them later.</p>
+        </div>
+        <div class="h-grid four">
+          <article class="h-card metric"><h3>Quality</h3><ul><li>Correction acceptance</li><li>False-correction rate</li><li>Citation coverage</li></ul></article>
+          <article class="h-card metric"><h3>Adoption</h3><ul><li>Weekly active CSMs</li><li>Share of external calls with Callie on</li><li>Sends per call</li></ul></article>
+          <article class="h-card metric"><h3>Business</h3><ul><li>Customers’ time to first value</li><li>Escalations per account</li><li>Teams Plus attach</li></ul></article>
+          <article class="h-card metric"><h3>Guardrails</h3><ul><li>Recording complaints</li><li>Dismiss rate</li><li>p90 latency</li></ul></article>
+        </div>
+      </section>
+
+      <!-- plan -->
+      <section class="h-sec" id="plan">
+        <div class="h-sec-head">
+          <p class="cds-eyebrow">From now to launch</p>
+          <h2>Twelve weeks, four phases, one live demo every week.</h2>
+        </div>
+        <ol class="timeline">
+          <li><span class="when">Weeks 0–2</span><h3>Discovery and evals</h3><p>Interview 15 CSMs, including Calendly’s own CS team. Shadow 10 calls. Collect 300 real questions as the gold set. Define Sev-1. Sign 3 design partners.</p></li>
+          <li><span class="when">Weeks 3–6</span><h3>Core loop</h3><p>Desktop capture, answers, fact-checks, the whiteboard and one-click send. Dogfood on Calendly’s own onboarding calls.</p></li>
+          <li><span class="when">Weeks 7–9</span><h3>Private beta</h3><p>Three to five design-partner companies, each with their own docs as the fact base. Weekly quality reviews. Tune interruptions.</p></li>
+          <li><span class="when">Weeks 10–12</span><h3>Public beta in Teams Plus</h3><p>Launch gates: zero Sev-1, p90 under 5 seconds, at least 80% correction acceptance. Launch story, enablement and help docs.</p></li>
+        </ol>
+        <div class="team">
+          <span><b>2 engineers</b> capture and the real-time pipeline</span>
+          <span><b>1 engineer</b> knowledge ingestion and retrieval</span>
+          <span><b>1 engineer</b> evals, quality and actions</span>
+          <span><b>Designer</b> the panel, the whiteboard and interruption design</span>
+        </div>
+      </section>
+
+      <!-- risks -->
+      <section class="h-sec alt" id="risks">
+        <div class="h-sec-head">
+          <p class="cds-eyebrow">Risks</p>
+          <h2>The top execution and adoption risks, and what I’d do about each.</h2>
+        </div>
+        <div class="table-wrap">
+          <table class="h-table risks">
+            <thead><tr><th>Risk</th><th>Mitigation</th></tr></thead>
+            <tbody>
+              <tr><td><b>A confidently wrong answer</b></td><td>Grounded-only answers with citations and confidence labels; an “I’d check X” fallback; the Sev-1 launch gate. Answers go to the CSM, never straight to the customer.</td></tr>
+              <tr><td><b>Interruption fatigue</b></td><td>Silent by default; blink only for serious corrections; the whisper is opt-in; coaching is rate-limited.</td></tr>
+              <tr><td><b>Recording consent and privacy</b></td><td>Disclosure at booking and in the meeting, the way Notetaker already notifies invitees; no audio stored by default; admin controls for Enterprise.</td></tr>
+              <tr><td><b>A stale knowledge base</b></td><td>Scheduled doc ingestion; the source and its date on every card.</td></tr>
+              <tr><td><b>Zoom, Meet and Teams build it themselves</b></td><td>Be the CSM’s assistant across every platform, with Calendly’s booking context and actions the platforms don’t have.</td></tr>
+              <tr><td><b>CSMs fear being watched</b></td><td>Position it as a private coach, not monitoring. Managers never see individual coaching.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- team + strategies -->
+      <section class="h-sec" id="team">
+        <div class="h-split even">
+          <div>
+            <p class="cds-eyebrow">Working with the team</p>
+            <h2 class="h2-sm">Shared problems, shown live each week.</h2>
+            <ul class="tick-list">
+              <li><b>Engineering (Will):</b> the real-time architecture and the eval harness, from week 1.</li>
+              <li><b>Design (Josh):</b> interruption design and the whiteboard. These are trust problems as much as UI problems.</li>
+              <li><b>Product (Roman):</b> line up with the Callie and Notetaker roadmaps and share booking context, recaps and voice.</li>
+              <li><b>Leadership (Tope):</b> a weekly live demo instead of status decks.</li>
+              <li><b>Go-to-market:</b> recruit design partners from Calendly’s own customers.</li>
+            </ul>
+          </div>
+          <div>
+            <p class="cds-eyebrow">Strategies I’d reuse</p>
+            <h2 class="h2-sm">Evals first, demos before decks.</h2>
+            <ul class="tick-list">
+              <li><b>Build the eval before the feature.</b> In this prototype, every demo line doubles as a test case.</li>
+              <li><b>Ship a working demo before the deck.</b> This page and the live call are the pitch.</li>
+              <li><b>Dogfood first.</b> Weeks 3 to 6 run on Calendly’s own onboarding calls before any customer sees it.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- why calendly + how it works -->
+      <section class="h-sec alt" id="why">
+        <div class="h-sec-head">
+          <p class="cds-eyebrow">Why Calendly, why now</p>
+          <h2>Calendly owns before and after the meeting. During is the open stage.</h2>
+        </div>
+        <div class="stages">
+          <div class="stage-col"><span class="cds-tile blue"><svg><use href="#i-clock" /></svg></span><h3>Before</h3><p>Who’s coming and why, in the invitee’s own words. Routing, reminders, booking notes.</p><span class="tag">Calendly today</span></div>
+          <div class="stage-col during"><span class="cds-tile callie"><svg><use href="#i-spark" /></svg></span><h3>During</h3><p>The one stage where Calendly is passive. Callie Live fills it with context no one else has: the booking itself.</p><span class="tag">Callie Live</span></div>
+          <div class="stage-col"><span class="cds-tile teal"><svg><use href="#i-mail" /></svg></span><h3>After</h3><p>Notetaker recaps and Callie follow-ups. Callie Live hands them a call where fewer things were left open.</p><span class="tag">Calendly today</span></div>
+        </div>
+        <div class="h-grid two">
+          <article class="h-card"><h3>Not locked to one platform</h3><p>Today’s in-meeting AI is tied to one platform: Teams Facilitator, Zoom’s assistant, Google’s Ask Gemini. Each works for the meeting owner’s company. Callie Live is the CSM’s own assistant, on any platform, grounded in their company’s knowledge.</p></article>
+          <article class="h-card"><h3>How the prototype works</h3><p>Two audio channels: the customer and the CSM. Gemini 3.5 Flash-Lite hears each utterance and its tone in about a second; Gemini 3.8 Flash answers and fact-checks from hybrid retrieval over the docs; Gemini Live whispers in under a second. The real app listens at the computer level, with no bot in the meeting.</p></article>
+        </div>
+      </section>
+
+      <!-- final CTA -->
+      <section class="h-final">
+        <div class="h-final-card">
+          <h2>Take the call with Grace.</h2>
+          <p>About ten minutes. Answer her questions out loud, get one fact wrong on purpose, and send her something before you hang up.</p>
+          <div class="h-cta center">
+            <button class="cds-btn lg white" data-start>Start experience <svg width="16" height="16"><use href="#i-arrow" /></svg></button>
+            <a class="h-final-link" href="/?recorded" data-recorded>Or watch the recorded call</a>
+          </div>
+        </div>
+      </section>
+
+      <footer class="h-foot">
+        <p>Callie Live is a concept prototype for an interview case by Leland Char. It is not a Calendly product and is not affiliated with Calendly or Arize. Cartwell and its people are fictional. Answers come from Arize’s public documentation.</p>
+      </footer>
+    </main>
+
+    <main class="h-view readme-view" data-view="readme" id="readme" hidden></main>
+  </div>
+
+  <!-- ================================================================ CALL ================ -->
+  <div class="app" id="app" hidden>
+    <header class="topbar">
+      <a class="brand" href="/" data-home><span class="brand-tile"><svg><use href="#i-spark" /></svg></span><b>Callie Live</b></a>
+      <span class="brand-sub">Your private AI copilot for customer conversations</span>
+      <div class="topbar-right">
+        <span class="status-chip" id="statusChip"><span class="dot"></span><span id="statusText">Private to you</span></span>
+        <span class="lock-chip"><svg><use href="#i-lock" /></svg>Here to help, not to record</span>
+        <a class="home-link" href="/" data-home>Overview</a>
+      </div>
+    </header>
+
+    <main class="call-grid">
+      <section class="stage" id="stage" aria-label="Video call">
+        <div class="video" id="video">
+          <div class="avatar-layer" id="avatarStage"></div>
+          <div class="customer-still" id="customerStill"><span class="initials">GL</span></div>
+          <div class="chip-timer" id="timerChip"><span class="rec"></span><span id="callTimer">00:00:00</span><span class="sep"></span><span>Customer call</span></div>
+          <div class="selfview" id="selfView"><video id="selfVideo" autoplay muted playsinline></video><div class="self-fallback">JR</div><div class="self-label"><span>Jordan (you)</span><span class="bars" id="micBars"><i></i><i></i><i></i></span></div></div>
+          <div class="selfview guest-tile" id="guestTile" hidden><div class="self-fallback">ML</div><div class="self-label"><span>Marcus Lee</span></div></div>
+          <div class="nameplate"><b>Grace Liu · Cartwell</b><span id="nameRole">Engineering Lead</span></div>
+          <div class="captions" id="captions" aria-live="polite"></div>
+          <div class="chatdock" id="chatDock" hidden>
+            <div class="chat-log" id="chatLog" aria-live="polite"></div>
+            <form class="chat-input" id="chatForm" autocomplete="off">
+              <input id="chatInput" placeholder="Type to Grace, then press Enter" aria-label="Message Grace" />
+              <button type="submit" aria-label="Send to Grace"><svg viewBox="0 0 24 24"><use href="#i-arrow" width="24" height="24" /></svg></button>
+            </form>
+          </div>
+          <div class="connecting" id="connecting" hidden><span class="spinner"></span><span id="connectingText">Calling Grace…</span></div>
+
+          <div class="overlay" id="overlay">
+            <div class="join-card" id="joinCard">
+              <div class="eyebrow" id="joinEyebrow">Onboarding working session · 45 min</div>
+              <h2 id="joinTitle">Ready to join your call with Grace?</h2>
+              <p id="joinText">Grace is an AI customer: a Gemini Live voice with a Spatius avatar, on a LiveKit call. Callie listens to both of you and helps only you.</p>
+              <div class="progress" id="avatarProgress"><i></i></div>
+              <div class="who"><span class="pic">GL</span><div><b>Grace Liu</b><span id="whoRole">Engineering lead, Cartwell · booked via Calendly</span></div></div>
+              <label class="chapter-pick scenario-pick" id="scenarioPick">Scenario <select id="scenarioSel"></select></label>
+              <p class="scenario-blurb" id="scenarioBlurb"></p>
+              <div class="join-error" id="joinError" hidden></div>
+              <div id="joinActions"><button class="cds-btn lg" id="joinBtn">Join call</button><div class="join-row"><button class="cds-btn outline" id="joinTextBtn">Join with text chat (no mic)</button></div></div>
+              <div class="join-foot"><span>Headphones recommended</span><a href="/?recorded" data-recorded id="joinAlt">Watch the recorded call instead</a></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <span class="ctl-label" id="ctlLabel"></span>
+          <button class="ctl" id="micBtn" aria-label="Mute microphone" title="Mute"><svg><use href="#i-mic" /></svg></button>
+          <button class="ctl" id="camBtn" aria-label="Turn camera off" title="Camera"><svg><use href="#i-video" /></svg></button>
+          <button class="ctl" id="shareBtn" aria-label="Present the whiteboard" title="Present the whiteboard to the customer"><svg><use href="#i-share" /></svg></button>
+          <button class="ctl end" id="endBtn" aria-label="Leave call" title="Leave call" disabled><svg><use href="#i-hangup" /></svg></button>
+          <button class="ctl ctl-more" id="moreBtn" aria-label="More options" aria-haspopup="true"><svg><use href="#i-more" /></svg></button>
+          <div class="menu" id="menu" hidden>
+            <h4>During the call</h4>
+            <label class="row"><span>Type instead of talking</span><span class="switch"><input type="checkbox" id="textModeToggle" /><span></span></span></label>
+            <label class="row"><span>Captions</span><span class="switch"><input type="checkbox" id="captionsToggle" checked /><span></span></span></label>
+            <label class="row"><span>Coaching</span><span class="switch"><input type="checkbox" id="coachToggle" checked /><span></span></span></label>
+            <label class="row"><span>Whisper in my ear</span><select id="whisperMode"><option value="off">Off</option><option value="corrections">Serious corrections</option><option value="all">Everything</option></select></label>
+            <label class="row"><span>Scenario</span><select id="profileSel"></select></label>
+            <button class="item" id="transcriptBtn" type="button">Show transcript</button>
+            <h4>Other ways to run it</h4>
+            <button class="item" id="recordedBtn" type="button">Recorded call (backup)</button>
+            <button class="item" id="audioOnlyBtn" type="button">Audio-only call with Grace</button>
+            <button class="item" id="captureBtn" type="button" hidden>Listen to my real meeting <span class="sub">Mac system audio</span></button>
+            <div id="simWrap" hidden>
+              <h4>Say a customer line out loud</h4>
+              <div id="simMenu"></div>
+            </div>
+            <h4>Session</h4>
+            <button class="item" id="resetBtn" type="button">Clear cards and whiteboard</button>
+          </div>
+        </div>
+      </section>
+
+      <aside class="callie" aria-label="Callie, private to you">
+        <section class="c-card c-now">
+          <div class="callie-head">
+            <span class="brand-tile"><svg><use href="#i-spark" /></svg></span>
+            <div><b>Callie</b><span class="sub" id="callieSub">Ready when you are</span></div>
+            <span class="cheer" id="cheer"><svg><use href="#i-spark" /></svg><span>Private to you</span></span>
+          </div>
+          <div class="now-label">Now</div>
+          <div class="now-stack" id="now">
+            <div class="now-empty" id="nowEmpty"><b>Callie is listening for questions, claims and tone.</b> Answers, corrections and coaching land here, one moment at a time.</div>
+          </div>
+        </section>
+
+        <section class="c-card c-board">
+          <div class="c-head">
+            <span class="c-icon"><svg><use href="#i-board" /></svg></span>
+            <h3>Whiteboard</h3>
+            <div class="right" style="position:relative">
+              <button class="pill-btn" id="toolBtn" aria-haspopup="true">Draw together <svg><use href="#i-down" /></svg></button>
+              <div class="tool-menu" id="toolMenu" hidden>
+                <button data-tool="select" class="is-active"><svg width="15" height="15"><use href="#i-pointer" /></svg>Select<kbd>V</kbd></button>
+                <button data-tool="pen"><svg width="15" height="15"><use href="#i-pen" /></svg>Pen<kbd>P</kbd></button>
+                <button data-tool="sticky"><svg width="15" height="15"><use href="#i-sticky" /></svg>Sticky note<kbd>S</kbd></button>
+                <button data-tool="eraser"><svg width="15" height="15"><use href="#i-eraser" /></svg>Eraser<kbd>E</kbd></button>
+                <hr />
+                <button data-tool="present"><svg width="15" height="15"><use href="#i-external" /></svg>Present to the customer</button>
+                <button data-tool="clear"><svg width="15" height="15"><use href="#i-trash" /></svg>Clear the board</button>
+              </div>
+            </div>
+          </div>
+          <div class="board" id="board">
+            <svg class="ink" id="ink"></svg>
+            <div class="board-items" id="boardItems"></div>
+            <div class="board-empty" id="boardEmpty">Callie draws here when a picture helps: setup flows, code, checklists.<br />Use Draw together to add your own.</div>
+            <div class="board-cursor" id="boardCursor"><svg width="18" height="18" viewBox="0 0 24 24"><path d="M4 3l7 17 2.5-7L21 10.5z" fill="#3b5410" stroke="#fff" stroke-width="1.5" /></svg><span>Callie</span></div>
+          </div>
+        </section>
+
+        <section class="c-card c-earlier" id="earlier">
+          <div class="c-head">
+            <span class="c-icon"><svg><use href="#i-clock" /></svg></span>
+            <h3>Earlier</h3>
+            <div class="right"><button class="pill-btn" id="tlToggle"><span id="tlCount">0 moments</span> <svg><use href="#i-down" /></svg></button></div>
+          </div>
+          <div class="list" id="timeline"><div class="tl-empty">Past moments collect here, one line each.</div></div>
+        </section>
+
+        <form class="ask" id="askForm" autocomplete="off">
+          <span class="spark"><svg><use href="#i-spark" /></svg></span>
+          <input id="askInput" placeholder="Ask Callie privately…" aria-label="Ask Callie privately" />
+          <button class="round hold" id="pttBtn" type="button" title="Hold to ask Callie out loud" aria-label="Hold to ask Callie out loud"><svg><use href="#i-mic" /></svg></button>
+          <button class="round" id="askSend" type="submit" aria-label="Ask"><svg><use href="#i-arrow" /></svg></button>
+        </form>
+        <div class="ask-hint"><span>Answers, drafts and coaching. Only you see this.</span><span><kbd>⌘ K</kbd> to focus</span></div>
+      </aside>
+    </main>
+
+    <div class="drawer" id="drawer" hidden></div>
+    <div class="hints" id="hints"></div>
+  </div>
+
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

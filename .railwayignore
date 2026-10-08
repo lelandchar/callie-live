@@ -1,0 +1,9 @@
+# The web service ships the server, public/ and the fact base. Grace's agent deploys separately
+# from agent/, and the call bundle is prebuilt into public/call/.
+.env
+node_modules/
+web/
+agent/
+scripts/
+kb/raw/
+HANDOFF.md

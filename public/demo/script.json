@@ -1,0 +1,308 @@
+{
+ "cast": {
+  "customer": {
+   "name": "Grace Liu",
+   "org": "Cartwell",
+   "role": "Engineering lead, AI shopping assistant",
+   "voiceId": "cgSgspJ2msm6clMCkdW9"
+  },
+  "csm": {
+   "name": "Jordan Reyes",
+   "org": "Arize",
+   "role": "Customer Success Manager",
+   "voiceId": "iP95p4xoKVk53GoZ742B"
+  },
+  "security": {
+   "name": "Marcus Lee",
+   "org": "Cartwell",
+   "role": "Security and compliance",
+   "voiceId": "cjVigY5qzO86Huf0OWal"
+  }
+ },
+ "scripts": {
+  "before": {
+   "title": "The same call, without Callie",
+   "lines": [
+    {
+     "id": "b01",
+     "who": "csm",
+     "text": "Hi Grace, thanks for making time. Let's get tracing running on your shopping assistant today.",
+     "pauseAfter": 500
+    },
+    {
+     "id": "b02",
+     "who": "customer",
+     "text": "Perfect. So, first thing: how do we actually get traces from our LangGraph agent into Arize?",
+     "pauseAfter": 700
+    },
+    {
+     "id": "b03",
+     "who": "csm",
+     "text": "Uh, so there's an SDK you install... I'd have to double check the exact package names. I'll send that over after the call.",
+     "pauseAfter": 600,
+     "miss": "Couldn't answer the setup question"
+    },
+    {
+     "id": "b04",
+     "who": "customer",
+     "text": "Okay. And how long do traces stick around? We're on the Pro trial right now.",
+     "pauseAfter": 500
+    },
+    {
+     "id": "b05",
+     "who": "csm",
+     "text": "On Pro you get ninety days of retention, so you're totally covered for the pilot.",
+     "pauseAfter": 600,
+     "miss": "Said 90 days; Pro is 30"
+    },
+    {
+     "id": "b06",
+     "who": "customer",
+     "text": "Our shoppers type addresses, emails and order numbers into the chat. How do we keep that out of the traces?",
+     "pauseAfter": 700
+    },
+    {
+     "id": "b07",
+     "who": "csm",
+     "text": "Hmm, good question. I believe there's a way to mask it, but let me get back to you on that one.",
+     "pauseAfter": 600,
+     "miss": "Deferred the PII question"
+    },
+    {
+     "id": "b08",
+     "who": "customer",
+     "text": "[sighs] Okay. We really need that answered before our security review next week.",
+     "pauseAfter": 400
+    }
+   ]
+  },
+  "after": {
+   "title": "The same call, with Callie",
+   "lines": [
+    {
+     "id": "a01",
+     "who": "csm",
+     "text": "Hi Grace, thanks for making time. Today I'd love to get tracing running on your shopping assistant, and sort out the PII question from last week.",
+     "pauseAfter": 500,
+     "chapter": "1 · Kickoff"
+    },
+    {
+     "id": "a02",
+     "who": "customer",
+     "text": "Perfect. So, first thing: how do we actually get traces from our LangGraph agent into Arize?",
+     "pauseAfter": 400,
+     "chapter": "2 · Setup"
+    },
+    {
+     "id": "a03",
+     "who": "csm",
+     "text": "Good place to start.",
+     "pauseAfter": 2600
+    },
+    {
+     "id": "a04",
+     "who": "csm",
+     "text": "You pip install arize-otel and the OpenInference LangChain instrumentor, call register with your space ID and API key, and then instrument. Every LangGraph node, tool call and LLM call gets traced automatically. I'm putting the steps on screen.",
+     "pauseAfter": 700
+    },
+    {
+     "id": "a05",
+     "who": "customer",
+     "text": "Um, okay... sorry, where do I even find the space ID and the API key? I don't think I've ever seen those.",
+     "pauseAfter": 3200,
+     "chapter": "3 · Finding the keys"
+    },
+    {
+     "id": "a06",
+     "who": "csm",
+     "text": "No worries at all. In the Arize app, go to Settings, then API Keys, and click New API Key. Copy it right away, because it's only shown once.",
+     "pauseAfter": 600
+    },
+    {
+     "chapter": "4 · A misconception",
+     "who": "customer",
+     "text": "And I'm guessing we'll need to wrap every function in manual spans, right? That sounds like weeks of work.",
+     "pauseAfter": 3400,
+     "id": "a20"
+    },
+    {
+     "who": "csm",
+     "text": "Good news, no. The instrumentor captures every node, tool call and LLM call automatically. You'd only add manual spans for custom code you really care about.",
+     "pauseAfter": 600,
+     "id": "a21"
+    },
+    {
+     "id": "a07",
+     "who": "customer",
+     "text": "Got it. And how long do traces stick around? We're on the Pro trial right now.",
+     "pauseAfter": 500,
+     "chapter": "5 · Retention"
+    },
+    {
+     "id": "a08",
+     "who": "csm",
+     "text": "On Pro you get ninety days of retention, so you're totally covered for the pilot.",
+     "pauseAfter": 300
+    },
+    {
+     "id": "a09",
+     "who": "customer",
+     "text": "Oh nice, that's plenty.",
+     "pauseAfter": 4200
+    },
+    {
+     "id": "a10",
+     "who": "csm",
+     "text": "Actually, quick correction. Pro keeps traces for thirty days. If you need longer retention, that's on Enterprise, and I'm happy to walk you through it.",
+     "pauseAfter": 600
+    },
+    {
+     "id": "a11",
+     "who": "customer",
+     "text": "Thanks for catching that. Next, the big one. Our shoppers type addresses, emails and order numbers into the chat. How do we keep that customer data out of the traces?",
+     "pauseAfter": 3200,
+     "chapter": "6 · Shopper PII"
+    },
+    {
+     "id": "a12",
+     "who": "csm",
+     "text": "You can set the OpenInference environment variables, like hide inputs and hide outputs, so prompts and responses never leave your app. I'm emailing you the masking guide right now.",
+     "pauseAfter": 700,
+     "action": "email_latest"
+    },
+    {
+     "id": "a13",
+     "who": "customer",
+     "text": "Honestly, our last observability tool slowed down checkout during a traffic spike. How do I know this won't add latency?",
+     "pauseAfter": 3200,
+     "chapter": "7 · Latency"
+    },
+    {
+     "id": "a14",
+     "who": "csm",
+     "text": "Totally fair. By default the exporter batches spans in the background, so it never blocks your requests. Let me double check one detail on sessions for you.",
+     "pauseAfter": 500
+    },
+    {
+     "id": "a15",
+     "who": "csm",
+     "private": true,
+     "text": "Callie, how do we group a shopper's whole conversation into one session?",
+     "pauseAfter": 5200,
+     "chapter": "8 · Sessions"
+    },
+    {
+     "id": "a16",
+     "who": "csm",
+     "text": "So for multi-turn chats, you wrap each conversation in using session, with a session ID, and Arize groups the whole thing together.",
+     "pauseAfter": 500
+    },
+    {
+     "chapter": "9 · Evals",
+     "who": "customer",
+     "text": "Next on my list. Our assistant sometimes makes up prices or shipping dates. Can Arize catch that?",
+     "pauseAfter": 3400,
+     "id": "a22"
+    },
+    {
+     "who": "csm",
+     "text": "Yes. You run an LLM as a judge eval on your traces, like a hallucination check against the product data you retrieved, and it scores every response automatically. I'm sketching the flow on the board.",
+     "pauseAfter": 700,
+     "id": "a23"
+    },
+    {
+     "chapter": "10 · Security joins",
+     "who": "security",
+     "text": "Hi all, Marcus from security, sorry I'm late. Quick one: we handle payment data. Is Arize PCI compliant?",
+     "pauseAfter": 3200,
+     "id": "a24"
+    },
+    {
+     "who": "csm",
+     "text": "Welcome, Marcus. Yes, Arize is PCI DSS 4.0 certified, along with SOC 2 Type 2. I'm sending you the compliance details right now.",
+     "pauseAfter": 600,
+     "action": "email_latest",
+     "actionTo": "Marcus Lee",
+     "id": "a25"
+    },
+    {
+     "who": "security",
+     "text": "Perfect. And we'd need single sign-on through Okta.",
+     "pauseAfter": 400,
+     "id": "a26"
+    },
+    {
+     "who": "csm",
+     "text": "Yep, SSO is included on the Pro plan, so you're all set there.",
+     "pauseAfter": 300,
+     "id": "a27"
+    },
+    {
+     "who": "security",
+     "text": "Great.",
+     "pauseAfter": 4200,
+     "id": "a28"
+    },
+    {
+     "who": "csm",
+     "text": "Sorry, let me correct myself. Enterprise SSO is on the Enterprise plan, not Pro. Let's make it part of the plan discussion.",
+     "pauseAfter": 600,
+     "id": "a29"
+    },
+    {
+     "chapter": "11 · Holiday scale",
+     "who": "customer",
+     "text": "That's related, actually. Holiday traffic is huge for us. Will we hit limits on Pro?",
+     "pauseAfter": 3400,
+     "id": "a30"
+    },
+    {
+     "who": "csm",
+     "text": "Pro includes fifty thousand spans a month, and at holiday scale you'll want custom volume on Enterprise. Let's get time with my team to size it properly.",
+     "pauseAfter": 700,
+     "id": "a31"
+    },
+    {
+     "chapter": "12 · Under pressure",
+     "who": "customer",
+     "text": "[sighs] Honestly, I'm worried. Code freeze is in six weeks and we still haven't shipped a single trace.",
+     "pauseAfter": 3200,
+     "id": "a32"
+    },
+    {
+     "who": "csm",
+     "private": true,
+     "text": "Callie, put a two week rollout plan for Grace on the board.",
+     "pauseAfter": 5200,
+     "id": "a33"
+    },
+    {
+     "who": "csm",
+     "text": "Totally hear you, so let's make it concrete. The plan's on screen: staging traces by Friday, masking and sessions next week, then the hallucination eval before code freeze.",
+     "pauseAfter": 700,
+     "id": "a34"
+    },
+    {
+     "id": "a17",
+     "who": "customer",
+     "text": "That's exactly what we need. Can you send me a page with all of this?",
+     "pauseAfter": 500,
+     "chapter": "13 · Wrap-up"
+    },
+    {
+     "id": "a18",
+     "who": "csm",
+     "text": "Already on it. I'm sharing a one-page guide with the setup steps, masking and sessions.",
+     "pauseAfter": 600,
+     "action": "share_latest"
+    },
+    {
+     "id": "a19",
+     "who": "customer",
+     "text": "Amazing. This was super helpful. Thanks, Jordan!",
+     "pauseAfter": 300
+    }
+   ]
+  }
+ }
+}

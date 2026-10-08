@@ -1,0 +1,22 @@
+# secrets
+.env
+.env.*
+# dependencies and local runtimes
+node_modules/
+web/node_modules/
+agent/.venv/
+# generated: rebuild with `npm run build:call`, `npm run ingest`, `node scripts/record-demo.mjs`
+web/dist/
+public/call/
+kb/raw/
+kb/chunks.json
+public/media/
+public/img/office-raw.png
+public/img/brand/cartwell-logo-raw.png
+public/img/art/*-raw.png
+public/img/art/*.log
+# local state
+agent/agent.log
+agent/.agent.pid
+agent/__pycache__/
+.DS_Store

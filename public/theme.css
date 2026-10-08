@@ -1,0 +1,117 @@
+/* Calendly 2026 design system, rebuilt from calendly.com's computed styles (Oct 2026).
+   Fonts: Geist stands in for Geist + "Calendly Sans" (display, weight 500, tight tracking);
+   Newsreader stands in for the "Wulkan Text" serif used on section headlines. */
+@import url("https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,500;6..72,600&display=swap");
+
+:root {
+  /* surfaces */
+  --c-bg: #fcfbf8;
+  --c-bg-alt: #f5f3ee;
+  --c-surface: #ffffff;
+  --c-ink: #071a31;
+  --c-ink-2: #3e4c5e;
+  --c-ink-3: #6d7887;
+  --c-line: #e4e6e9;
+  --c-line-2: #d6dade;
+  --c-ink-05: rgba(7, 26, 49, 0.05);
+  --c-ink-08: rgba(7, 26, 49, 0.08);
+
+  /* brand + accents (from calendly.com illustration fills) */
+  --c-blue: #006bff;
+  --c-blue-dark: #0052cc;
+  --c-blue-mid: #6bb1ff;
+  --c-blue-soft: #c3dffe;
+  --c-blue-bar: #84c1ff;
+  --c-teal: #5ddfd7;
+  --c-mint: #baf0ec;
+  --c-lavender: #b89ffa;
+  --c-lavender-soft: #d4c2ff;
+  --c-orange: #f8961f;
+  --c-peach: #ffe2c2;
+  --c-lime: #dbee9f;
+  --c-lime-soft: #f2f8de;
+
+  /* Callie (Calendly's AI assistant) wears lime */
+  --c-callie: #dbee9f;
+  --c-callie-strong: #a7cf3a;
+  --c-callie-ink: #3b5410;
+
+  /* semantic */
+  --c-red: #e5484d;
+  --c-red-soft: #fde7e7;
+  --c-amber: #c27803;
+  --c-amber-soft: #fff1d6;
+  --c-green: #13894a;
+  --c-green-soft: #e3f6ea;
+
+  /* type */
+  --f-sans: "Geist", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-display: "Geist", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --f-serif: "Newsreader", Georgia, serif;
+  --f-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* shape */
+  --r-xs: 4px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-btn: 16px;
+  --r-card: 24px;
+  --r-panel: 48px;
+  --r-hero: 64px;
+
+  /* elevation */
+  --sh-soft: 0 4px 5px rgba(95, 109, 119, 0.04), 0 8px 15px rgba(95, 109, 119, 0.03), 0 30px 50px rgba(95, 109, 119, 0.08);
+  --sh-float: 0 20px 48px -12px rgba(11, 53, 88, 0.16);
+  --sh-card: 0 1px 2px rgba(7, 26, 49, 0.05), 0 6px 18px -8px rgba(7, 26, 49, 0.1);
+
+  /* gradients */
+  --g-hero: radial-gradient(60% 70% at 10% 15%, #2f62d6 0%, transparent 60%), radial-gradient(55% 60% at 85% 20%, #8fb4ff 0%, transparent 65%), radial-gradient(60% 70% at 70% 90%, #f4b8d4 0%, transparent 65%), radial-gradient(50% 60% at 20% 85%, #c3a7f7 0%, transparent 70%), linear-gradient(135deg, #4b7be0, #b9a8f3 60%, #f2bcd6);
+  --g-scheduling: radial-gradient(60% 70% at 20% 20%, #9cc9ff, transparent 70%), radial-gradient(60% 60% at 80% 80%, #8ee9e1, transparent 70%), linear-gradient(160deg, #cfe6ff, #e9f7f5);
+  --g-callie: radial-gradient(60% 70% at 20% 20%, #c9b6ff, transparent 70%), radial-gradient(60% 70% at 85% 85%, #9ad2ff, transparent 70%), linear-gradient(160deg, #e6defd, #dcecff);
+  --g-teal: radial-gradient(60% 70% at 15% 30%, #b8a5f9, transparent 65%), radial-gradient(65% 70% at 85% 30%, #7fe4dc, transparent 70%), linear-gradient(160deg, #e8e0fd, #ccf4ef);
+  --g-blue-panel: linear-gradient(180deg, #7ab6ff 0%, #a9d0ff 35%, #5d9cf0 70%, #1f4f99 100%);
+  --g-ai-glow: linear-gradient(120deg, #f8961f 0%, #ffd66b 45%, #c6e86a 100%);
+}
+
+/* ---------- primitives ---------- */
+.cds-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  font: 500 14px/1 var(--f-sans); letter-spacing: -0.005em;
+  padding: 12px 16px; border-radius: var(--r-btn); border: 2px solid transparent;
+  background: var(--c-ink); color: var(--c-bg); cursor: pointer; text-decoration: none; white-space: nowrap;
+  transition: background 0.15s, transform 0.1s, border-color 0.15s;
+}
+.cds-btn:hover { background: #12304f; }
+.cds-btn:active { transform: scale(0.98); }
+.cds-btn.lg { font-size: 16px; padding: 16px 22px; }
+.cds-btn.sm { font-size: 13px; padding: 8px 12px; border-radius: 12px; }
+.cds-btn.outline { background: transparent; color: var(--c-ink); border: 1.5px solid var(--c-ink); }
+.cds-btn.outline:hover { background: var(--c-ink-05); }
+.cds-btn.white { background: #fff; color: var(--c-ink); border: 0; box-shadow: var(--sh-card); }
+.cds-btn.white:hover { background: #f7f7f5; }
+.cds-btn.ghost { background: transparent; color: var(--c-ink); border-color: transparent; }
+.cds-btn.ghost:hover { background: var(--c-ink-05); }
+.cds-btn.blue { background: var(--c-blue); }
+.cds-btn.blue:hover { background: var(--c-blue-dark); }
+
+.cds-eyebrow { font: 500 12px/1.2 var(--f-sans); letter-spacing: 0.1em; text-transform: uppercase; color: var(--c-ink); }
+.cds-pill { display: inline-flex; align-items: center; gap: 4px; font: 500 12px/1 var(--f-sans); color: var(--c-ink-2); background: var(--c-ink-05); border-radius: 999px; padding: 5px 9px; }
+.cds-badge { display: inline-flex; align-items: center; gap: 8px; font: 500 15px/1 var(--f-sans); color: var(--c-ink); }
+.cds-tile { width: 26px; height: 26px; border-radius: 8px; display: inline-grid; place-items: center; flex: none; }
+.cds-tile svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.cds-tile.blue { background: var(--c-blue-mid); color: var(--c-ink); }
+.cds-tile.callie { background: var(--c-callie); color: var(--c-callie-ink); }
+.cds-tile.teal { background: var(--c-teal); color: var(--c-ink); }
+.cds-tile.lavender { background: var(--c-lavender); color: var(--c-ink); }
+.cds-tile.orange { background: var(--c-orange); color: #fff; }
+.cds-tile.red { background: var(--c-red); color: #fff; }
+.cds-tile.ink { background: var(--c-ink); color: #fff; }
+.cds-card { background: var(--c-surface); border-radius: var(--r-card); box-shadow: var(--sh-soft); }
+.cds-link { color: var(--c-ink); font: 500 14px/1.4 var(--f-sans); text-decoration: none; border-bottom: 1.5px solid var(--c-ink); padding-bottom: 3px; display: inline-flex; gap: 6px; }
+.cds-link:hover { opacity: 0.75; }
+.cds-ai-ring { position: relative; }
+.cds-ai-ring::before { content: ""; position: absolute; inset: -2px; border-radius: inherit; padding: 2px; background: var(--g-ai-glow); -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
+
+/* Calendly-style mark: a blue ring "C" (drawn, not the trademarked asset) */
+.cds-logo { width: 28px; height: 28px; border-radius: 50%; flex: none; background: conic-gradient(from 210deg, #006bff 0deg, #2f8dff 140deg, #5ddfd7 230deg, transparent 230deg 290deg, #006bff 290deg); -webkit-mask: radial-gradient(circle, transparent 7px, #000 7.5px); mask: radial-gradient(circle, transparent 7px, #000 7.5px); }
+.cds-wordmark { font: 600 22px/1 var(--f-display); letter-spacing: -0.04em; color: var(--c-ink); }

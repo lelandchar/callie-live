@@ -1,0 +1,5 @@
+.venv/
+agent.log
+.agent.pid
+__pycache__/
+run-local.sh

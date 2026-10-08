@@ -1,0 +1,26 @@
+{
+  "name": "callie-live",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Callie Live: a private, live copilot for customer calls (concept prototype for a Calendly interview case; not affiliated with Calendly or Arize)",
+  "type": "module",
+  "scripts": {
+    "ingest": "node scripts/ingest-arize.mjs",
+    "selftest": "node scripts/selftest.mjs",
+    "start": "node server.js",
+    "build:call": "npm --prefix web run build",
+    "e2e:call": "node scripts/call-e2e.mjs"
+  },
+  "dependencies": {
+    "@google/genai": "^2.25.0",
+    "dotenv": "^18.0.5",
+    "livekit-server-sdk": "^2.19.1",
+    "ws": "^8.22.0"
+  },
+  "optionalDependencies": {
+    "audiotee": "^0.0.7"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
