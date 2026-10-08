@@ -114,7 +114,9 @@ function loadProfile(name) {
   demoInbox(account);
   return { name, account, facts, kb, brain: new Brain({ apiKey: process.env.GEMINI_API_KEY, kb, account, facts }) };
 }
-const profiles = { arize: loadProfile("arize"), panel: loadProfile("panel"), ...Object.fromEntries(Object.keys(SCENARIOS).map((id) => [id, loadProfile(id)])) };
+// The interview-panel profile is private (not in the public repo); load it only when it's present.
+const hasPanel = fs.existsSync(path.join(ROOT, "kb", "profiles", "panel", "account.json"));
+const profiles = { arize: loadProfile("arize"), ...(hasPanel ? { panel: loadProfile("panel") } : {}), ...Object.fromEntries(Object.keys(SCENARIOS).map((id) => [id, loadProfile(id)])) };
 const SCENARIO_LIST = [
   ...["prompt-monitor", "traces-skills", "evals-review"].filter((id) => SCENARIOS[id]).map((id) => SCENARIOS[id])
     .map(({ id, title, blurb, role, teammate }) => ({ id, title, blurb, role, teammate: teammate ? { name: teammate.name, role: teammate.role, avatarId: teammate.avatarId } : null })),

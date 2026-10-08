@@ -20,3 +20,8 @@ agent/agent.log
 agent/.agent.pid
 agent/__pycache__/
 .DS_Store
+
+# private: presenter notes, the interview-panel profile, the working handoff
+private/
+kb/profiles/panel/
+HANDOFF.md
